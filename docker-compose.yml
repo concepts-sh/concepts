@@ -1,0 +1,16 @@
+services:
+  concepts:
+    container_name: concepts
+    build: .
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      - tunnel-net
+
+# No ports are bound on the host. The Cloudflare Tunnel on the shared
+# tunnel-net network routes concepts.sh to http://concepts:3000.
+# Create the network once on the server: docker network create tunnel-net
+networks:
+  tunnel-net:
+    external: true
