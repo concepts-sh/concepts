@@ -1,11 +1,45 @@
 <section class="hero">
-  <p class="eyebrow">An open format for agent knowledge</p>
-  <h1>Give your agents the meaning of things.</h1>
-  <p class="lead">A <code>.concepts/</code> folder of plain markdown that defines what each term, entity and idea in your project is, and how they connect. Skills tell an agent how to do a task. Concepts tell it what things are.</p>
-  <div class="install"><code>npx concepts init</code><span>or create the folder by hand. No tool is required.</span></div>
+  <div>
+    <p class="eyebrow">An open format for agent knowledge</p>
+    <h1>Give your agents the meaning of things.</h1>
+    <p class="lead">A <code>.concepts/</code> folder of plain markdown that defines what each term, entity and idea in your project is, and how they connect. Skills tell an agent how to do a task. Concepts tell it what things are.</p>
+    <div class="install"><code>npx concepts init</code><span>or create the folder by hand. No tool is required.</span></div>
+  </div>
+  <div>
+    <svg class="graph" viewBox="0 0 440 300" role="img" aria-label="The concept Invoice with its typed connections: part of Workspace, requires Proration, causes Payment attempt, not Receipt">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arrow-h"/></marker>
+        <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arrow-a"/></marker>
+        <marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arrow-c"/></marker>
+      </defs>
+      <!-- edges -->
+      <line class="eh" x1="220" y1="133" x2="220" y2="66" marker-end="url(#ah)"/>
+      <text class="e" x="226" y="104">part of</text>
+      <line class="ea" x1="165" y1="142" x2="118" y2="106" marker-end="url(#aa)"/>
+      <text class="e" x="112" y="140" text-anchor="end">requires</text>
+      <line class="ea" x1="165" y1="158" x2="118" y2="194" marker-end="url(#aa)"/>
+      <text class="e" x="112" y="166" text-anchor="end">causes</text>
+      <line class="ec" x1="275" y1="150" x2="322" y2="150" marker-end="url(#ac)"/>
+      <text class="e" x="298" y="141" text-anchor="middle">not</text>
+      <!-- nodes -->
+      <rect x="165" y="32" width="110" height="34" rx="9"/><text x="220" y="54" text-anchor="middle">Workspace</text>
+      <rect x="8" y="78" width="110" height="34" rx="9"/><text x="63" y="100" text-anchor="middle">Proration</text>
+      <rect x="8" y="188" width="110" height="34" rx="9"/><text x="63" y="210" text-anchor="middle">Payment attempt</text>
+      <rect x="322" y="133" width="110" height="34" rx="9"/><text x="377" y="155" text-anchor="middle">Receipt</text>
+      <rect class="center" x="165" y="133" width="110" height="34" rx="9"/><text x="220" y="155" text-anchor="middle" font-weight="600">Invoice</text>
+      <!-- legend -->
+      <g transform="translate(8,262)">
+        <rect class="sw sw-h" x="0" y="0" width="10" height="10" rx="2"/><text class="e" x="16" y="9">hierarchy</text>
+        <rect class="sw sw-a" x="84" y="0" width="10" height="10" rx="2"/><text class="e" x="100" y="9">association</text>
+        <rect class="sw sw-c" x="182" y="0" width="10" height="10" rx="2"/><text class="e" x="198" y="9">contrast</text>
+      </g>
+    </svg>
+    <p class="caption">One concept and its connections, as the agent sees them.</p>
+  </div>
 </section>
 
 <blockquote class="thesis"><p>Intelligence means having a sufficient number of clear, correct and essential concepts in your mind, and having established a sufficient number of clear, correct and essential connections among them.</p></blockquote>
+<p class="thesis-who">The idea behind the format.</p>
 
 <section>
   <h2>One concept, one file</h2>
@@ -16,8 +50,7 @@
 title: Invoice
 description: A bill for one billing period that cannot change after it is finalized.
 ---
-An invoice lists what a [workspace](../tenancy/workspace.md) owes
-for one billing period. Finalizing it freezes the amounts.
+An invoice lists what a [workspace](../tenancy/workspace.md) owes for one billing period. Finalizing it freezes the amounts.
 
 Example: `src/billing/__fixtures__/invoice.json`.
 Source: `src/billing/invoice.ts`.
@@ -26,24 +59,18 @@ Source: `src/billing/invoice.ts`.
 - Part of a [workspace](../tenancy/workspace.md), never of a user.
 - Requires a [proration](proration.md) for any change after it is finalized.
 - Causes a [payment attempt](payment-attempt.md) when it is finalized.
-- Not a [receipt](receipt.md): a receipt records a payment,
-  an invoice requests one.</code></pre>
+- Not a [receipt](receipt.md): a receipt records a payment, an invoice requests one.</code></pre>
     </figure>
     <figure>
       <figcaption>.concepts/index.md, the map</figcaption>
 <pre><code># Concepts
 
 ## tenancy
-- [Workspace](tenancy/workspace.md): The tenant boundary;
-  every row belongs to exactly one. Parts: team, project;
-  not organization.
+- [Workspace](tenancy/workspace.md): The tenant boundary; every row belongs to exactly one. Parts: team, project; not organization.
 
 ## billing
-- [Invoice](billing/invoice.md): A bill for one billing period
-  that cannot change after it is finalized. Part of workspace;
-  requires proration; causes payment attempt; not receipt.
-- [Proration](billing/proration.md): A credit or charge for a
-  partial billing period. Part of invoice; caused by plan change.</code></pre>
+- [Invoice](billing/invoice.md): A bill for one billing period that cannot change after it is finalized. Part of workspace; requires proration; causes payment attempt; not receipt.
+- [Proration](billing/proration.md): A credit or charge for a partial billing period. Part of invoice; caused by plan change.</code></pre>
     </figure>
   </div>
   <p>Two required fields, the same two as a skill: a title and a one-sentence definition. The body is free. Connections are sentences whose first word is the type of relationship, so the file reads like prose and parses like data. The map sits in context on every turn; the file is one hop away.</p>
@@ -111,7 +138,9 @@ Source: `src/billing/invoice.ts`.
 
 <section>
   <h2>Works with any agent</h2>
-  <p>A concept base is markdown files and one line in <code>AGENTS.md</code>, so it works today in every agent that reads that file: Claude Code, Codex, Cursor, Copilot, Gemini CLI and the rest. No vendor has to add support. The optional CLI (<code>init</code>, <code>check</code>, <code>wiki</code>) is one file with no dependencies, and the files are also valid for the Open Knowledge Format, Obsidian and any markdown viewer.</p>
+  <p>A concept base is markdown files and one line in <code>AGENTS.md</code>, so it works today in every agent that reads that file. No vendor has to add support.</p>
+  <div class="works"><span>Claude Code</span><span>Codex</span><span>Cursor</span><span>GitHub Copilot</span><span>Gemini CLI</span><span>Amp</span><span>OpenCode</span><span>Any agent that reads AGENTS.md</span></div>
+  <p>The optional CLI (<code>init</code>, <code>check</code>, <code>wiki</code>) is one file with no dependencies. The files are also valid for the Open Knowledge Format, open as an Obsidian vault, and render in any markdown viewer.</p>
 </section>
 
 <section>

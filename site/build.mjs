@@ -84,6 +84,37 @@ function markdown(src) {
   return { html: html.join("\n"), headings };
 }
 
+// ---------- code colouring ----------
+// Runs over already-escaped code so the samples read like the files they show:
+// front-matter keys, headings, links, comments, and connection openers by family.
+
+const OPENER_CLASS = [
+  [/^(- )(Kind of|Kinds:|Part of|Parts:)(?=[\s])/, "o-h"],
+  [/^(- )(Same as|Replaces|Replaced by)(?=[\s])/, "o-i"],
+  [/^(- )(Not)(?=[\s])/, "o-c"],
+  [/^(- )(Requires|Required by|Causes|Caused by|Used for|Uses)(?=[\s])/, "o-a"],
+];
+
+function colour(code) {
+  return code.split("\n").map((line) => {
+    if (/^---\s*$/.test(line)) return `<span class="k">${line}</span>`;
+    const fm = line.match(/^(title|description):(.*)$/);
+    if (fm) return `<span class="k">${fm[1]}:</span>${fm[2]}`;
+    if (/^#{1,6}\s/.test(line)) return `<span class="h">${line}</span>`;
+    let out = line;
+    for (const [re, cls] of OPENER_CLASS) {
+      if (re.test(out)) { out = out.replace(re, (m, dash, word) => `${dash}<span class="${cls}">${word}</span>`); break; }
+    }
+    out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => `<span class="l">[${t}]</span><span class="u">(${u})</span>`);
+    out = out.replace(/(\s)(#\s.*)$/, (m, s, c) => `${s}<span class="c">${c}</span>`);
+    return out;
+  }).join("\n");
+}
+
+function colourBlocks(html) {
+  return html.replace(/<pre([^>]*)><code>([\s\S]*?)<\/code><\/pre>/g, (m, attrs, code) => `<pre${attrs}><code>${colour(code)}</code></pre>`);
+}
+
 // ---------- pages ----------
 
 const layout = readFileSync(join(here, "layout.html"), "utf8");
@@ -106,7 +137,7 @@ for (const p of pages) {
   }
   const html = layout
     .replace(/\{\{title\}\}/g, p.title === "Concepts" ? "Concepts" : `${p.title} · Concepts`)
-    .replace("{{content}}", body)
+    .replace("{{content}}", colourBlocks(body))
     .replace("{{toc}}", toc)
     .replace(new RegExp(`\\{\\{nav:${p.nav}\\}\\}`), ' class="active"')
     .replace(/\{\{nav:[a-z-]+\}\}/g, "");
