@@ -6,7 +6,7 @@ A `.concepts/` folder gives your agents the meaning of things: what each term, e
 
 The format is plain markdown with no dependencies. It is defined in [SPEC.md](SPEC.md). This file describes the tooling, which is optional: every file the tooling writes, a person can write by hand.
 
-Status: draft. The commands below work from a checkout as `node cli/concepts.mjs <command>`; the npm package is not published yet.
+Status: draft. The commands below work from a checkout as `bun cli/concepts.mjs <command>` (Node works too); the npm package is not published yet.
 
 ## Install
 
@@ -56,4 +56,4 @@ To read a whole base, clone it and run `npx concepts wiki path/to/.concepts`, or
 - `SPEC.md`: the format.
 - `skills/concepts/`: the skill, which teaches an agent to read, write and maintain a base.
 - `cli/`: the `concepts` command.
-- `site/`: the site at concepts.sh. `node site/build.mjs` writes it to `site/dist/`: home, quickstart, spec (rendered from `SPEC.md`), best practices, examples.
+- `site/`: the site at concepts.sh. `bun site/build.mjs` writes it to `site/dist/`: home, quickstart, spec (rendered from `SPEC.md`), best practices, examples.
