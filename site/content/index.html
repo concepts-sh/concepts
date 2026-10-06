@@ -1,9 +1,9 @@
 <section class="hero">
   <div>
     <p class="eyebrow">An open format for agent knowledge</p>
-    <h1>Give your agents the meaning of things.</h1>
-    <p class="lead">A <code>.concepts/</code> folder of plain markdown that defines what each term, entity and idea in your project is, and how they connect. Skills tell an agent how to do a task. Concepts tell it what things are.</p>
-    <div class="install"><code>npx concepts init</code><span>or create the folder by hand. No tool is required.</span></div>
+    <h1>Agents need skills. They also need concepts.</h1>
+    <p class="lead">A skill tells an agent how to do a task. A concept tells it what a thing means in your project, and how it connects to other things. A <code>.concepts/</code> folder of plain markdown holds them.</p>
+    <div class="install"><code>npx concepts init</code><span>or make the folder by hand. No tool is needed.</span></div>
   </div>
   <div>
     <svg class="graph" viewBox="0 0 440 300" role="img" aria-label="The concept Invoice with its typed connections: part of Workspace, requires Proration, causes Payment attempt, not Receipt">
@@ -12,7 +12,6 @@
         <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arrow-a"/></marker>
         <marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arrow-c"/></marker>
       </defs>
-      <!-- edges -->
       <line class="eh" x1="220" y1="133" x2="220" y2="66" marker-end="url(#ah)"/>
       <text class="e" x="226" y="104">part of</text>
       <line class="ea" x1="165" y1="142" x2="118" y2="106" marker-end="url(#aa)"/>
@@ -21,20 +20,18 @@
       <text class="e" x="112" y="166" text-anchor="end">causes</text>
       <line class="ec" x1="275" y1="150" x2="322" y2="150" marker-end="url(#ac)"/>
       <text class="e" x="298" y="141" text-anchor="middle">not</text>
-      <!-- nodes -->
       <rect x="165" y="32" width="110" height="34" rx="9"/><text x="220" y="54" text-anchor="middle">Workspace</text>
       <rect x="8" y="78" width="110" height="34" rx="9"/><text x="63" y="100" text-anchor="middle">Proration</text>
       <rect x="8" y="188" width="110" height="34" rx="9"/><text x="63" y="210" text-anchor="middle">Payment attempt</text>
       <rect x="322" y="133" width="110" height="34" rx="9"/><text x="377" y="155" text-anchor="middle">Receipt</text>
       <rect class="center" x="165" y="133" width="110" height="34" rx="9"/><text x="220" y="155" text-anchor="middle" font-weight="600">Invoice</text>
-      <!-- legend -->
       <g transform="translate(8,262)">
         <rect class="sw sw-h" x="0" y="0" width="10" height="10" rx="2"/><text class="e" x="16" y="9">hierarchy</text>
         <rect class="sw sw-a" x="84" y="0" width="10" height="10" rx="2"/><text class="e" x="100" y="9">association</text>
         <rect class="sw sw-c" x="182" y="0" width="10" height="10" rx="2"/><text class="e" x="198" y="9">contrast</text>
       </g>
     </svg>
-    <p class="caption">One concept and its connections, as the agent sees them.</p>
+    <p class="caption">One concept and its connections.</p>
   </div>
 </section>
 
@@ -73,23 +70,23 @@ Source: `src/billing/invoice.ts`.
 - [Proration](billing/proration.md): A credit or charge for a partial billing period. Part of invoice; caused by plan change.</code></pre>
     </figure>
   </div>
-  <p>Two required fields, the same two as a skill: a title and a one-sentence definition. The body is free. Connections are sentences whose first word is the type of relationship, so the file reads like prose and parses like data. The map sits in context on every turn; the file is one hop away.</p>
+  <p>Two fields are required: a title and a one-sentence definition. The rest is free text. A connection is a sentence, and its first word is the type. The map lists every concept on one line, and the agent sees the map on every turn.</p>
 </section>
 
 <section>
-  <h2>Why concepts</h2>
+  <h2>Why</h2>
   <div class="cards">
     <div>
-      <h3>Agents fail at meaning before they fail at code</h3>
-      <p>A model knows what a database index is. It cannot know what your team means by "workspace", which of three revenue numbers is the real one, or that a finalized invoice must never change. That knowledge is local, and no training run will ever contain it.</p>
+      <h3>Meaning is local</h3>
+      <p>A model knows what an invoice is. It cannot know what <em>your</em> invoice is, or that it must never change after it is finalized. No training run contains that.</p>
     </div>
     <div>
-      <h3>Correct once</h3>
-      <p>When the agent misunderstands a term, the fix goes into the concept file, not into one more line of the prompt. Every teammate's agent has it from then on. Nobody writes a knowledge base up front; it grows from corrections.</p>
+      <h3>Fix it once</h3>
+      <p>When the agent gets a term wrong, fix the concept file. Every agent on the team has the fix from then on. The base grows from corrections.</p>
     </div>
     <div>
-      <h3>Connections are half the meaning</h3>
-      <p>"Invoice" alone says little. "Part of a workspace, never of a user" and "not a receipt" are what prevent the bug. Each connection is a typed claim, and the map carries them, so the agent sees the shape of the domain, not just a list of words.</p>
+      <h3>Connections prevent bugs</h3>
+      <p>"Part of a workspace, never of a user" and "not a receipt" are what stop the wrong change. The map carries them, so the agent sees the shape of your domain.</p>
     </div>
   </div>
 </section>
@@ -97,69 +94,60 @@ Source: `src/billing/invoice.ts`.
 <section>
   <h2>How it works</h2>
   <ol class="steps">
-    <li><strong>The map is always in context.</strong> <code>AGENTS.md</code> points to <code>.concepts/index.md</code>, one line per concept with its definition and connections. About a hundred concepts fit in 4,000 tokens.</li>
-    <li><strong>Files load on demand.</strong> When a task touches a concept, the agent opens its file. The connections on the map line say which neighbours to open too.</li>
-    <li><strong>The agent maintains it.</strong> A skill teaches the agent when to add, fix, update and retire concepts, in the same change as the code. People review the diff like any other.</li>
+    <li><strong>The map is always in context.</strong> One line in <code>AGENTS.md</code> points to <code>.concepts/index.md</code>. A hundred concepts fit in about 4,000 tokens.</li>
+    <li><strong>Files load when needed.</strong> When a task touches a concept, the agent opens its file and follows the connections.</li>
+    <li><strong>The agent keeps it current.</strong> A skill tells it when to add, fix and retire concepts, in the same change as the code. You review the diff.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Get started</h2>
+  <ol class="steps">
+    <li><strong>Install.</strong> <code>npx concepts init</code> makes the folder, installs the skill, and adds one line to <code>AGENTS.md</code>. Or do those three things by hand.</li>
+    <li><strong>Ask your agent: set up concepts.</strong> It reads your schema, types and docs, writes the ten to twenty concepts that matter, and asks you about the rest.</li>
+    <li><strong>Correct it.</strong> When a term is wrong, say so. The agent fixes the file. <code>npx concepts check</code> runs in CI, and <code>npx concepts wiki</code> shows the base in a browser.</li>
   </ol>
 </section>
 
 <section>
   <h2>Eight relationship types</h2>
-  <p>The type is the first word of the sentence; the rest of the sentence is the claim. Conditions and differences go after the colon.</p>
+  <p>The first word of a connection is its type. The rest of the sentence is the claim.</p>
   <table class="types">
-    <thead><tr><th>Family</th><th>Opener</th><th>Question it answers</th></tr></thead>
+    <thead><tr><th>Type</th><th>Opener</th><th>Question it answers</th></tr></thead>
     <tbody>
       <tr><td><span class="swatch" style="background:var(--hier)"></span>Kind</td><td>Kind of X · Kinds: X, Y</td><td>What is it, more generally?</td></tr>
       <tr><td><span class="swatch" style="background:var(--hier)"></span>Part</td><td>Part of X · Parts: X, Y</td><td>What contains it?</td></tr>
       <tr><td><span class="swatch" style="background:var(--ident)"></span>Same</td><td>Same as X</td><td>Is it the same thing under another name?</td></tr>
-      <tr><td><span class="swatch" style="background:var(--ident)"></span>Replaces</td><td>Replaces X · Replaced by X</td><td>What is outdated, and what to use instead?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--ident)"></span>Replaces</td><td>Replaces X · Replaced by X</td><td>What is outdated, and what replaced it?</td></tr>
       <tr><td><span class="swatch" style="background:var(--contrast)"></span>Not</td><td>Not X</td><td>What is it confused with?</td></tr>
       <tr><td><span class="swatch" style="background:var(--assoc)"></span>Requires</td><td>Requires X · Required by X</td><td>What must be true first?</td></tr>
       <tr><td><span class="swatch" style="background:var(--assoc)"></span>Causes</td><td>Causes X · Caused by X</td><td>What does it trigger?</td></tr>
       <tr><td><span class="swatch" style="background:var(--assoc)"></span>Use</td><td>Used for X · Uses X</td><td>What is it for?</td></tr>
     </tbody>
   </table>
-  <p>When a relationship needs its own definition, it is a concept. Settlement is the relationship between a payment and an invoice, so Settlement gets a file with two connections.</p>
-</section>
-
-<section>
-  <h2>Beside skills, memory and docs</h2>
-  <table class="compare">
-    <thead><tr><th></th><th>Answers</th><th>Written by</th><th>Lives in</th></tr></thead>
-    <tbody>
-      <tr><td>AGENTS.md</td><td>How to work in this repo</td><td>People</td><td>The repo</td></tr>
-      <tr><td>Skills</td><td>How to do a task</td><td>People, shared</td><td>A folder, on demand</td></tr>
-      <tr><td>Memory</td><td>What happened before</td><td>The agent, privately</td><td>Each vendor's own store</td></tr>
-      <tr><td>Docs</td><td>Everything, at length</td><td>People</td><td>Wherever</td></tr>
-      <tr><td><strong>Concepts</strong></td><td><strong>What things mean here</strong></td><td><strong>The agent, reviewed by people</strong></td><td><strong>The repo, in context</strong></td></tr>
-    </tbody>
-  </table>
 </section>
 
 <section>
   <h2>Works with any agent</h2>
-  <p>A concept base is markdown files and one line in <code>AGENTS.md</code>, so it works today in every agent that reads that file. No vendor has to add support.</p>
+  <p>A concept base is markdown files and one line in <code>AGENTS.md</code>. Every agent that reads that file can use it today.</p>
   <div class="works"><span>Claude Code</span><span>Codex</span><span>Cursor</span><span>GitHub Copilot</span><span>Gemini CLI</span><span>Amp</span><span>OpenCode</span><span>Any agent that reads AGENTS.md</span></div>
-  <p>The optional CLI (<code>init</code>, <code>check</code>, <code>wiki</code>) is one file with no dependencies. The files are also valid for the Open Knowledge Format, open as an Obsidian vault, and render in any markdown viewer.</p>
 </section>
 
 <section>
   <h2>Questions</h2>
   <dl>
     <dt>Is this memory?</dt>
-    <dd>No. Memory is what an agent privately remembers about past sessions, and every vendor ships its own. Concepts are shared, reviewed meaning: in git, visible to the whole team, readable by any agent.</dd>
-    <dt>Why not a database or a graph store?</dt>
-    <dd>Files in git are readable by every agent, reviewable in a pull request, and need no runtime. The graph is derived from the files whenever it is needed, by the CLI, the wiki, or a <code>grep</code> for backlinks.</dd>
+    <dd>No. Memory is what one agent remembers privately. Concepts are shared meaning: in git, reviewed by the team, read by any agent.</dd>
+    <dt>Why files and not a database?</dt>
+    <dd>Files work in every agent, show up in pull requests, and need nothing running. The graph is built from the files whenever something needs it.</dd>
     <dt>Can I share a base?</dt>
-    <dd>Publish it: push the repo. Others link to your concepts by URL, pinned to a version, and write local concepts in their own words when they need yours in mind. Nothing is copied, so titles never collide.</dd>
+    <dd>Push the repo. Others link to your concepts by URL, pinned to a version, and write their own concepts with yours as the source. Nothing is copied.</dd>
     <dt>Do I need the CLI?</dt>
-    <dd>No. The format needs no tool. The CLI installs the skill, checks a base in CI, and builds a disposable wiki to read a base in a browser.</dd>
-    <dt>How big should a base be?</dt>
-    <dd>Start with ten to twenty concepts: the terms used everywhere, the ones with two meanings, the ones nobody has written down. Grow it from corrections. Essential beats complete.</dd>
+    <dd>No. The format needs no tool. The CLI installs the skill, checks a base in CI, and builds the wiki.</dd>
   </dl>
 </section>
 
 <section class="cta">
-  <a href="quickstart.html"><strong>Quickstart</strong><span>Set up a base in an existing project in ten minutes.</span></a>
   <a href="spec.html"><strong>Specification</strong><span>The whole format on one page.</span></a>
+  <a href="writing.html"><strong>Writing concepts</strong><span>Nine rules and three example bases.</span></a>
 </section>

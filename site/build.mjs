@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds the static site into site/dist. No dependencies.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -9,6 +9,7 @@ import { writeIcons } from "./icons.mjs";
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
 const out = join(here, "dist");
+rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
 // ---------- markdown ----------
@@ -126,10 +127,8 @@ const cssHash = createHash("sha256").update(css).digest("hex").slice(0, 10);
 const layout = readFileSync(join(here, "layout.html"), "utf8").replace('href="style.css"', `href="style.css?v=${cssHash}"`);
 const pages = [
   { file: "index.html", title: "Concepts", nav: "home", source: join(here, "content", "index.html"), raw: true },
-  { file: "quickstart.html", title: "Quickstart", nav: "quickstart", source: join(here, "content", "quickstart.md") },
   { file: "spec.html", title: "Specification", nav: "spec", source: join(root, "SPEC.md"), toc: true },
-  { file: "best-practices.html", title: "Best practices", nav: "best-practices", source: join(here, "content", "best-practices.md"), toc: true },
-  { file: "examples.html", title: "Examples", nav: "examples", source: join(here, "content", "examples.md"), toc: true },
+  { file: "writing.html", title: "Writing concepts", nav: "writing", source: join(here, "content", "writing.md"), toc: true },
 ];
 
 for (const p of pages) {
