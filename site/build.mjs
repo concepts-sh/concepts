@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Builds the static site into site/dist. No dependencies.
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } from "node:fs";
-import { join, dirname, basename } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
+import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
+import { writeIcons } from "./icons.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -117,7 +119,11 @@ function colourBlocks(html) {
 
 // ---------- pages ----------
 
-const layout = readFileSync(join(here, "layout.html"), "utf8");
+// The stylesheet is cached for a day by nginx, so its URL carries a hash of its content:
+// every build that changes it is a new URL, and no visitor sees new pages with old styles.
+const css = readFileSync(join(here, "style.css"));
+const cssHash = createHash("sha256").update(css).digest("hex").slice(0, 10);
+const layout = readFileSync(join(here, "layout.html"), "utf8").replace('href="style.css"', `href="style.css?v=${cssHash}"`);
 const pages = [
   { file: "index.html", title: "Concepts", nav: "home", source: join(here, "content", "index.html"), raw: true },
   { file: "quickstart.html", title: "Quickstart", nav: "quickstart", source: join(here, "content", "quickstart.md") },
@@ -144,4 +150,5 @@ for (const p of pages) {
   writeFileSync(join(out, p.file), html);
 }
 copyFileSync(join(here, "style.css"), join(out, "style.css"));
-console.log(`built ${pages.length} pages → ${out}`);
+writeIcons(out);
+console.log(`built ${pages.length} pages and icons → ${out} (style.css?v=${cssHash})`);
