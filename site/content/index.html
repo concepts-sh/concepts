@@ -1,0 +1,136 @@
+<section class="hero">
+  <p class="eyebrow">An open format for agent knowledge</p>
+  <h1>Give your agents the meaning of things.</h1>
+  <p class="lead">A <code>.concepts/</code> folder of plain markdown that defines what each term, entity and idea in your project is, and how they connect. Skills tell an agent how to do a task. Concepts tell it what things are.</p>
+  <div class="install"><code>npx concepts init</code><span>or create the folder by hand. No tool is required.</span></div>
+</section>
+
+<blockquote class="thesis"><p>Intelligence means having a sufficient number of clear, correct and essential concepts in your mind, and having established a sufficient number of clear, correct and essential connections among them.</p></blockquote>
+
+<section>
+  <h2>One concept, one file</h2>
+  <div class="two">
+    <figure>
+      <figcaption>.concepts/billing/invoice.md</figcaption>
+<pre><code>---
+title: Invoice
+description: A bill for one billing period that cannot change after it is finalized.
+---
+An invoice lists what a [workspace](../tenancy/workspace.md) owes
+for one billing period. Finalizing it freezes the amounts.
+
+Example: `src/billing/__fixtures__/invoice.json`.
+Source: `src/billing/invoice.ts`.
+
+## Connections
+- Part of a [workspace](../tenancy/workspace.md), never of a user.
+- Requires a [proration](proration.md) for any change after it is finalized.
+- Causes a [payment attempt](payment-attempt.md) when it is finalized.
+- Not a [receipt](receipt.md): a receipt records a payment,
+  an invoice requests one.</code></pre>
+    </figure>
+    <figure>
+      <figcaption>.concepts/index.md, the map</figcaption>
+<pre><code># Concepts
+
+## tenancy
+- [Workspace](tenancy/workspace.md): The tenant boundary;
+  every row belongs to exactly one. Parts: team, project;
+  not organization.
+
+## billing
+- [Invoice](billing/invoice.md): A bill for one billing period
+  that cannot change after it is finalized. Part of workspace;
+  requires proration; causes payment attempt; not receipt.
+- [Proration](billing/proration.md): A credit or charge for a
+  partial billing period. Part of invoice; caused by plan change.</code></pre>
+    </figure>
+  </div>
+  <p>Two required fields, the same two as a skill: a title and a one-sentence definition. The body is free. Connections are sentences whose first word is the type of relationship, so the file reads like prose and parses like data. The map sits in context on every turn; the file is one hop away.</p>
+</section>
+
+<section>
+  <h2>Why concepts</h2>
+  <div class="cards">
+    <div>
+      <h3>Agents fail at meaning before they fail at code</h3>
+      <p>A model knows what a database index is. It cannot know what your team means by "workspace", which of three revenue numbers is the real one, or that a finalized invoice must never change. That knowledge is local, and no training run will ever contain it.</p>
+    </div>
+    <div>
+      <h3>Correct once</h3>
+      <p>When the agent misunderstands a term, the fix goes into the concept file, not into one more line of the prompt. Every teammate's agent has it from then on. Nobody writes a knowledge base up front; it grows from corrections.</p>
+    </div>
+    <div>
+      <h3>Connections are half the meaning</h3>
+      <p>"Invoice" alone says little. "Part of a workspace, never of a user" and "not a receipt" are what prevent the bug. Each connection is a typed claim, and the map carries them, so the agent sees the shape of the domain, not just a list of words.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li><strong>The map is always in context.</strong> <code>AGENTS.md</code> points to <code>.concepts/index.md</code>, one line per concept with its definition and connections. About a hundred concepts fit in 4,000 tokens.</li>
+    <li><strong>Files load on demand.</strong> When a task touches a concept, the agent opens its file. The connections on the map line say which neighbours to open too.</li>
+    <li><strong>The agent maintains it.</strong> A skill teaches the agent when to add, fix, update and retire concepts, in the same change as the code. People review the diff like any other.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Eight relationship types</h2>
+  <p>The type is the first word of the sentence; the rest of the sentence is the claim. Conditions and differences go after the colon.</p>
+  <table class="types">
+    <thead><tr><th>Family</th><th>Opener</th><th>Question it answers</th></tr></thead>
+    <tbody>
+      <tr><td><span class="swatch" style="background:var(--hier)"></span>Kind</td><td>Kind of X · Kinds: X, Y</td><td>What is it, more generally?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--hier)"></span>Part</td><td>Part of X · Parts: X, Y</td><td>What contains it?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--ident)"></span>Same</td><td>Same as X</td><td>Is it the same thing under another name?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--ident)"></span>Replaces</td><td>Replaces X · Replaced by X</td><td>What is outdated, and what to use instead?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--contrast)"></span>Not</td><td>Not X</td><td>What is it confused with?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--assoc)"></span>Requires</td><td>Requires X · Required by X</td><td>What must be true first?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--assoc)"></span>Causes</td><td>Causes X · Caused by X</td><td>What does it trigger?</td></tr>
+      <tr><td><span class="swatch" style="background:var(--assoc)"></span>Use</td><td>Used for X · Uses X</td><td>What is it for?</td></tr>
+    </tbody>
+  </table>
+  <p>When a relationship needs its own definition, it is a concept. Settlement is the relationship between a payment and an invoice, so Settlement gets a file with two connections.</p>
+</section>
+
+<section>
+  <h2>Beside skills, memory and docs</h2>
+  <table class="compare">
+    <thead><tr><th></th><th>Answers</th><th>Written by</th><th>Lives in</th></tr></thead>
+    <tbody>
+      <tr><td>AGENTS.md</td><td>How to work in this repo</td><td>People</td><td>The repo</td></tr>
+      <tr><td>Skills</td><td>How to do a task</td><td>People, shared</td><td>A folder, on demand</td></tr>
+      <tr><td>Memory</td><td>What happened before</td><td>The agent, privately</td><td>Each vendor's own store</td></tr>
+      <tr><td>Docs</td><td>Everything, at length</td><td>People</td><td>Wherever</td></tr>
+      <tr><td><strong>Concepts</strong></td><td><strong>What things mean here</strong></td><td><strong>The agent, reviewed by people</strong></td><td><strong>The repo, in context</strong></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Works with any agent</h2>
+  <p>A concept base is markdown files and one line in <code>AGENTS.md</code>, so it works today in every agent that reads that file: Claude Code, Codex, Cursor, Copilot, Gemini CLI and the rest. No vendor has to add support. The optional CLI (<code>init</code>, <code>check</code>, <code>wiki</code>) is one file with no dependencies, and the files are also valid for the Open Knowledge Format, Obsidian and any markdown viewer.</p>
+</section>
+
+<section>
+  <h2>Questions</h2>
+  <dl>
+    <dt>Is this memory?</dt>
+    <dd>No. Memory is what an agent privately remembers about past sessions, and every vendor ships its own. Concepts are shared, reviewed meaning: in git, visible to the whole team, readable by any agent.</dd>
+    <dt>Why not a database or a graph store?</dt>
+    <dd>Files in git are readable by every agent, reviewable in a pull request, and need no runtime. The graph is derived from the files whenever it is needed, by the CLI, the wiki, or a <code>grep</code> for backlinks.</dd>
+    <dt>Can I share a base?</dt>
+    <dd>Publish it: push the repo. Others link to your concepts by URL, pinned to a version, and write local concepts in their own words when they need yours in mind. Nothing is copied, so titles never collide.</dd>
+    <dt>Do I need the CLI?</dt>
+    <dd>No. The format needs no tool. The CLI installs the skill, checks a base in CI, and builds a disposable wiki to read a base in a browser.</dd>
+    <dt>How big should a base be?</dt>
+    <dd>Start with ten to twenty concepts: the terms used everywhere, the ones with two meanings, the ones nobody has written down. Grow it from corrections. Essential beats complete.</dd>
+  </dl>
+</section>
+
+<section class="cta">
+  <a href="quickstart.html"><strong>Quickstart</strong><span>Set up a base in an existing project in ten minutes.</span></a>
+  <a href="spec.html"><strong>Specification</strong><span>The whole format on one page.</span></a>
+</section>

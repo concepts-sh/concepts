@@ -1,0 +1,116 @@
+#!/usr/bin/env node
+// Builds the static site into site/dist. No dependencies.
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } from "node:fs";
+import { join, dirname, basename } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const root = join(here, "..");
+const out = join(here, "dist");
+mkdirSync(out, { recursive: true });
+
+// ---------- markdown ----------
+
+function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function slug(s) { return s.toLowerCase().replace(/<[^>]+>/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+
+function inline(s) {
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, (m, c) => `<code>${c}</code>`);
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => `<a href="${u}">${t}</a>`);
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/(^|[\s(])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+  return s;
+}
+
+function markdown(src) {
+  const lines = src.split("\n");
+  const html = [];
+  const headings = [];
+  let i = 0;
+  const peek = () => lines[i];
+  while (i < lines.length) {
+    const line = peek();
+    if (line.startsWith("```")) {
+      const lang = line.slice(3).trim();
+      const buf = [];
+      i++;
+      while (i < lines.length && !lines[i].startsWith("```")) buf.push(lines[i++]);
+      i++;
+      html.push(`<pre${lang ? ` data-lang="${esc(lang)}"` : ""}><code>${esc(buf.join("\n"))}</code></pre>`);
+      continue;
+    }
+    const h = line.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      const level = h[1].length, text = inline(h[2]), id = slug(h[2]);
+      if (level === 2) headings.push({ id, text });
+      html.push(`<h${level} id="${id}">${text}</h${level}>`);
+      i++; continue;
+    }
+    if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) { html.push("<hr>"); i++; continue; }
+    if (line.startsWith("> ")) {
+      const buf = [];
+      while (i < lines.length && lines[i].startsWith("> ")) buf.push(lines[i++].slice(2));
+      html.push(`<blockquote><p>${inline(buf.join(" "))}</p></blockquote>`);
+      continue;
+    }
+    if (line.startsWith("|")) {
+      const rows = [];
+      while (i < lines.length && lines[i].startsWith("|")) rows.push(lines[i++]);
+      const cells = (r) => r.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+      const head = cells(rows[0]);
+      const body = rows.slice(2).map(cells);
+      html.push(`<table><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${body.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`);
+      continue;
+    }
+    const li = line.match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+    if (li) {
+      const ordered = /\d/.test(li[2]);
+      const items = [];
+      while (i < lines.length) {
+        const m = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+        if (m && m[1].length === li[1].length) { items.push(m[3]); i++; }
+        else if (lines[i].match(/^\s{2,}\S/) && items.length) { items[items.length - 1] += " " + lines[i].trim(); i++; }
+        else break;
+      }
+      html.push(`<${ordered ? "ol" : "ul"}>${items.map((t) => `<li>${inline(t)}</li>`).join("")}</${ordered ? "ol" : "ul"}>`);
+      continue;
+    }
+    if (!line.trim()) { i++; continue; }
+    const buf = [];
+    while (i < lines.length && lines[i].trim() && !/^(#{1,6}\s|```|>\s|\||\s*([-*]|\d+\.)\s)/.test(lines[i])) buf.push(lines[i++]);
+    html.push(`<p>${inline(buf.join(" "))}</p>`);
+  }
+  return { html: html.join("\n"), headings };
+}
+
+// ---------- pages ----------
+
+const layout = readFileSync(join(here, "layout.html"), "utf8");
+const pages = [
+  { file: "index.html", title: "Concepts", nav: "home", source: join(here, "content", "index.html"), raw: true },
+  { file: "quickstart.html", title: "Quickstart", nav: "quickstart", source: join(here, "content", "quickstart.md") },
+  { file: "spec.html", title: "Specification", nav: "spec", source: join(root, "SPEC.md"), toc: true },
+  { file: "best-practices.html", title: "Best practices", nav: "best-practices", source: join(here, "content", "best-practices.md"), toc: true },
+  { file: "examples.html", title: "Examples", nav: "examples", source: join(here, "content", "examples.md"), toc: true },
+];
+
+for (const p of pages) {
+  const src = readFileSync(p.source, "utf8");
+  let body, toc = "";
+  if (p.raw) body = src;
+  else {
+    const r = markdown(src);
+    body = `<article class="prose">${r.html}</article>`;
+    if (p.toc && r.headings.length >= 3) toc = `<nav class="toc"><p>On this page</p><ul>${r.headings.map((h) => `<li><a href="#${h.id}">${h.text}</a></li>`).join("")}</ul></nav>`;
+  }
+  const html = layout
+    .replace(/\{\{title\}\}/g, p.title === "Concepts" ? "Concepts" : `${p.title} · Concepts`)
+    .replace("{{content}}", body)
+    .replace("{{toc}}", toc)
+    .replace(new RegExp(`\\{\\{nav:${p.nav}\\}\\}`), ' class="active"')
+    .replace(/\{\{nav:[a-z-]+\}\}/g, "");
+  writeFileSync(join(out, p.file), html);
+}
+copyFileSync(join(here, "style.css"), join(out, "style.css"));
+console.log(`built ${pages.length} pages → ${out}`);
