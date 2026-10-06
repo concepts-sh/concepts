@@ -3,7 +3,8 @@
 # Fetches main, and if the deployed SHA differs, resets to it and rebuilds the container.
 set -euo pipefail
 
-REPO_DIR=/home/deploy/concepts
+# The repository is the parent of this script's directory, wherever it is checked out.
+REPO_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 BRANCH=main
 STATE_FILE=$REPO_DIR/scripts/.state/concepts.rev
 
