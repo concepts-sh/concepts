@@ -1,6 +1,6 @@
 /* A reference book, not a landing page: paper and ink, serif headwords, hairline rules. */
 :root {
-  --paper: #f7f5f0; --paper-2: #efece4; --ink: #1b1b1f; --ink-2: #4a4843; --muted: #76726a; --rule: #d9d4c9; --rule-2: #c8c2b4;
+  --paper: #ffffff; --paper-2: #f3f2ee; --ink: #1b1b1f; --ink-2: #4a4843; --muted: #76726a; --rule: #d9d4c9; --rule-2: #c8c2b4;
   --accent: #9b2f22;
   --hier: #3652c7; --ident: #6e49b0; --contrast: #b3261e; --assoc: #2a7a5a;
   --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
@@ -48,7 +48,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 36px 0; }
 .o-c { color: var(--contrast); font-weight: 600; } .o-a { color: var(--assoc); font-weight: 600; }
 
 /* header */
-.top { display: flex; align-items: baseline; justify-content: space-between; max-width: 1040px; margin: 0 auto; padding: 22px 28px 18px; border-bottom: 1px solid var(--ink); }
+.top { display: flex; align-items: baseline; justify-content: space-between; max-width: 1040px; margin: 0 auto; padding: 22px 28px 18px; border-bottom: 0; }
 .brand { display: inline-flex; align-items: center; font-family: var(--serif); font-weight: 500; font-size: 22px; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
 .brand svg { color: var(--ink); margin-right: 10px; position: relative; top: 2px; }
 .brand span { color: var(--muted); }
@@ -72,7 +72,7 @@ main { min-width: 0; padding: 48px 0 96px; }
 .toc a:hover { color: var(--ink); text-decoration: underline; }
 
 /* footer */
-footer { border-top: 1px solid var(--ink); margin-top: 24px; padding: 32px 28px 56px; color: var(--muted); font-size: 14px; }
+footer { border-top: 0; margin-top: 24px; padding: 32px 28px 56px; color: var(--muted); font-size: 14px; }
 footer .cols { max-width: 984px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 24px; }
 footer a { display: block; color: var(--ink-2); margin: 6px 0; text-decoration: none; }
 footer a:hover { text-decoration: underline; }
