@@ -59,7 +59,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 36px 0; }
 /* page grid */
 .page { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 1040px; margin: 0 auto; padding: 0 28px; }
 .page:has(.toc) { grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
-main { min-width: 0; padding: 36px 0 80px; }
+main { min-width: 0; padding: 0 0 80px; }
 .prose { max-width: 720px; }
 .prose > h1 + p { font-family: var(--serif); font-size: 21px; line-height: 1.4; color: var(--ink-2); margin-bottom: 36px; }
 .prose h2 { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--rule); font-size: 26px; }
@@ -81,9 +81,9 @@ footer .head { font-family: var(--mono); color: var(--muted); font-size: 11px; t
 footer .muted { max-width: 34ch; }
 
 /* home: numbered sections with the numeral in the margin */
-main > section:not(.hero) { padding: 40px 0 8px; counter-increment: sec; border-top: 1px solid var(--rule); margin-top: 20px; }
-main > section:not(.hero) > h2::before { content: counter(sec, decimal-leading-zero); display: block; font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; }
-.hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 64px; align-items: end; padding: 16px 0 40px; }
+main > section:not(.hero):not(.interlude) { padding: 40px 0 8px; counter-increment: sec; border-top: 1px solid var(--rule); margin-top: 20px; }
+main > section:not(.hero):not(.interlude) > h2::before { content: counter(sec, decimal-leading-zero); display: block; font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 64px; align-items: center; min-height: calc(100vh - 92px); padding: 0 0 24px; }
 .eyebrow { font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11.5px; margin-bottom: 22px; }
 .hero h1 { font-size: 60px; line-height: 1.02; margin-bottom: 22px; letter-spacing: -0.02em; }
 .hero h1 em { font-size: 1em; color: var(--ink); }
@@ -102,9 +102,10 @@ main > section:not(.hero) > h2::before { content: counter(sec, decimal-leading-z
 .graph .arrow-h { fill: var(--hier); } .graph .arrow-a { fill: var(--assoc); } .graph .arrow-c { fill: var(--contrast); }
 .graph rect.sw { stroke: none; } .graph .sw-h { fill: var(--hier); } .graph .sw-a { fill: var(--assoc); } .graph .sw-c { fill: var(--contrast); }
 .caption { font-family: var(--mono); color: var(--muted); font-size: 11.5px; letter-spacing: 0.03em; margin: 10px 0 0; max-width: none; }
-.thesis { margin: 8px 0 8px 0; padding: 0; border: 0; font-size: 30px; line-height: 1.3; max-width: 24em; font-weight: 400; letter-spacing: -0.01em; }
+.interlude { min-height: 78vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 24px 0; }
+.thesis { margin: 0; padding: 0; border: 0; font-size: 38px; line-height: 1.28; max-width: 21em; font-weight: 400; letter-spacing: -0.012em; }
 .thesis p { margin: 0; }
-.thesis-who { font-family: var(--mono); color: var(--muted); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; margin: 16px 0 20px 0; }
+.thesis-who { font-family: var(--mono); color: var(--muted); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; margin: 28px 0 0; }
 .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; margin-bottom: 20px; }
 .two > * { min-width: 0; }
 .two figure { display: flex; flex-direction: column; }
@@ -140,10 +141,11 @@ dl.faq dd { margin: 6px 0 0; color: var(--ink-2); }
 @media (max-width: 880px) {
   .page:has(.toc) { grid-template-columns: 1fr; } .toc { display: none; }
   main { padding-top: 12px; }
-  main > section:not(.hero) { padding-top: 28px; }
-  .hero { grid-template-columns: 1fr; gap: 24px; padding: 8px 0 24px; }
+  main > section:not(.hero):not(.interlude) { padding-top: 28px; }
+  .hero { grid-template-columns: 1fr; gap: 24px; min-height: 0; padding: 8px 0 24px; }
+  .interlude { min-height: 0; padding: 48px 0 32px; }
   .hero h1 { font-size: 42px; } h1 { font-size: 36px; } h2 { font-size: 26px; }
-  .thesis { font-size: 23px; }
+  .thesis { font-size: 24px; }
   .entries, .steps, .cases { grid-template-columns: 1fr; }
   footer .cols { grid-template-columns: 1fr; }
   .top { padding: 16px 16px 12px; flex-wrap: wrap; align-items: center; }
