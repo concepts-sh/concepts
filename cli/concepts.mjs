@@ -274,7 +274,7 @@ const FAMILY = {
   "caused by": "association", "used for": "association", "uses": "association",
 };
 
-function wikiData(base) {
+function wikiData(base, opts = {}) {
   const { concepts, byPath } = loadBase(base);
   const idOf = (fromFile, target) => {
     const c = byPath.get(resolveTarget(fromFile, target));
@@ -286,7 +286,7 @@ function wikiData(base) {
     const bodyOnly = c.body.replace(/^## Connections[\s\S]*$/m, "").trim();
     return {
       id: c.id.split(sep).join("/"),
-      file: resolve(c.path),
+      file: opts.public ? null : resolve(c.path),
       folder: dirname(c.id) === "." ? "" : dirname(c.id).split(sep).join("/"),
       title: c.title,
       description: c.description,
@@ -301,8 +301,9 @@ function wikiData(base) {
       })),
     };
   });
+  data.sort((a, b) => a.folder.localeCompare(b.folder) || a.title.localeCompare(b.title));
   const health = check(base);
-  return { base, generated: new Date().toISOString(), folders, concepts: data, errors: health.errors, warnings: health.warnings };
+  return { public: !!opts.public, base: opts.public ? basename(base) : base, generated: new Date().toISOString(), folders, concepts: data, errors: health.errors, warnings: health.warnings };
 }
 
 function wikiHtml(data) {
@@ -360,7 +361,7 @@ pre { background:var(--panel); border:1px solid var(--line); padding:12px; borde
 <body>
 <nav>
   <input id="q" placeholder="Search concepts" autocomplete="off">
-  <div class="top"><a href="#">Map</a><a href="#!order">Read in order</a><a href="#!health">Health</a><a href="#!graph">Whole graph</a></div>
+  <div class="top"><a href="#">Map</a><a href="#!order">Read in order</a><a href="#!health">Health</a><a href="#!graph">Whole graph</a><a id="home" href="/" style="display:none">&larr; concepts.sh</a></div>
   <div id="list"></div>
 </nav>
 <main id="main"></main>
@@ -450,7 +451,8 @@ function renderConcept(c) {
   if (bl.length) html += "<h2>Also mentioned in</h2><p>" + bl.map(function (id) { return '<a href="#' + esc(id) + '">' + esc(byId[id].title) + "</a>"; }).join(", ") + "</p>";
   html += '<div class="meta">';
   if (c.source) html += "Source: " + inline(c, c.source) + "<br>";
-  html += "File: <code>" + esc(c.file) + "</code> <a href=\"vscode://file" + esc(c.file) + "\">Open in editor</a> <button onclick=\"copyFix('" + esc(c.file) + "')\">Copy fix prompt</button></div>";
+  if (c.file) html += "File: <code>" + esc(c.file) + "</code> <a href=\"vscode://file" + esc(c.file) + "\">Open in editor</a> <button onclick=\"copyFix('" + esc(c.file) + "')\">Copy fix prompt</button>";
+  html += "</div>";
   document.getElementById("main").innerHTML = html;
   renderFocus(c);
 }
@@ -572,13 +574,14 @@ function route() {
   if (byId[h]) { renderConcept(byId[h]); document.getElementById("main").scrollTop = 0; return; }
   renderHome();
 }
+if (DATA.public) document.getElementById("home").style.display = "block";
 renderList(""); window.addEventListener("hashchange", route); route();
 </script>
 </body>
 </html>`;
 
 function wiki(base, opts) {
-  const data = wikiData(base);
+  const data = wikiData(base, opts);
   const html = wikiHtml(data);
   let out = opts.out;
   if (!out) {
@@ -598,10 +601,11 @@ function wiki(base, opts) {
 // ---------- main ----------
 
 const argv = process.argv.slice(2);
-const flags = { out: null, noOpen: false };
+const flags = { out: null, noOpen: false, public: false };
 for (let i = 0; i < argv.length; i++) {
   if (argv[i] === "--out") { flags.out = resolve(argv[i + 1]); argv.splice(i, 2); i--; }
   else if (argv[i] === "--no-open") { flags.noOpen = true; argv.splice(i, 1); i--; }
+  else if (argv[i] === "--public") { flags.public = true; argv.splice(i, 1); i--; }
 }
 const [cmd, arg] = argv;
 const root = process.cwd();
@@ -624,6 +628,6 @@ if (cmd === "check") {
   const r = wiki(base, flags);
   console.log(`${r.count} concepts, ${r.errors} errors → ${r.out}`);
 } else {
-  console.log("usage: concepts <init | check [path] | wiki [path] [--out file] [--no-open]>");
+  console.log("usage: concepts <init | check [path] | wiki [path] [--out file] [--no-open] [--public]>");
   process.exit(cmd ? 2 : 0);
 }

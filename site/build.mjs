@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, mkdirSync, copyFileSync, cpSync, rmSync } 
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { writeIcons } from "./icons.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -134,7 +135,7 @@ const pages = [
   { file: "index.html", title: "Concepts", nav: "home", source: join(here, "content", "index.html"), raw: true },
   { file: "spec.html", title: "Specification", nav: "spec", source: join(root, "SPEC.md"), toc: true },
   { file: "best-practices.html", title: "Best practices", nav: "best-practices", source: join(here, "content", "best-practices.md"), toc: true },
-  { file: "examples.html", title: "Examples", nav: "examples", source: join(here, "content", "examples.md"), toc: true },
+  { file: "use-cases.html", title: "Use cases", nav: "use-cases", source: join(here, "content", "use-cases.md"), toc: true },
 ];
 
 for (const p of pages) {
@@ -161,12 +162,15 @@ writeIcons(out);
 
 const spec = readFileSync(join(root, "SPEC.md"), "utf8");
 const bestPractices = readFileSync(join(here, "content", "best-practices.md"), "utf8");
-const examples = readFileSync(join(here, "content", "examples.md"), "utf8");
+const useCases = readFileSync(join(here, "content", "use-cases.md"), "utf8");
 writeFileSync(join(out, "spec.md"), spec);
 writeFileSync(join(out, "best-practices.md"), bestPractices);
-writeFileSync(join(out, "examples.md"), examples);
+writeFileSync(join(out, "use-cases.md"), useCases);
 cpSync(join(root, "skills", "concepts"), join(out, "skill"), { recursive: true });
 const skill = readFileSync(join(root, "skills", "concepts", "SKILL.md"), "utf8");
+
+// The live base: the repository's own .concepts/ rendered by the CLI's wiki builder, public mode.
+execFileSync(process.execPath, [join(root, "cli", "concepts.mjs"), "wiki", join(root, ".concepts"), "--no-open", "--public", "--out", join(out, "wiki.html")], { stdio: "inherit" });
 
 const llms = `# Concepts
 
@@ -180,7 +184,7 @@ A concept is one markdown file with two required fields, \`title\` and \`descrip
 
 - [Specification](https://concepts.sh/spec.md): structure, the concept file, the eight relationship types, style, the map, loading, changes, validity, compatibility.
 - [Best practices](https://concepts.sh/best-practices.md): nine rules for writing concepts.
-- [Examples](https://concepts.sh/examples.md): three complete bases.
+- [Use cases](https://concepts.sh/use-cases.md): six situations, each with the files.
 
 ## For agents
 
@@ -192,11 +196,11 @@ A concept is one markdown file with two required fields, \`title\` and \`descrip
 
 ## Optional
 
-- [Everything in one file](https://concepts.sh/llms-full.txt): the spec, best practices, examples and the skill, concatenated.
+- [Everything in one file](https://concepts.sh/llms-full.txt): the spec, best practices, use cases and the skill, concatenated.
 - [Source repository](https://github.com/concepts-sh/concepts): the standard, the skill, the CLI and this site.
 `;
 writeFileSync(join(out, "llms.txt"), llms);
 const sep = (name) => `\n\n---\n\n<!-- ${name} -->\n\n`;
-writeFileSync(join(out, "llms-full.txt"), `<!-- concepts.sh, everything in one file -->\n\n${spec}${sep("best-practices.md")}${bestPractices}${sep("examples.md")}${examples}${sep("skill/SKILL.md")}${skill}`);
+writeFileSync(join(out, "llms-full.txt"), `<!-- concepts.sh, everything in one file -->\n\n${spec}${sep("best-practices.md")}${bestPractices}${sep("use-cases.md")}${useCases}${sep("skill/SKILL.md")}${skill}`);
 
 console.log(`built ${pages.length} pages, icons, markdown mirrors and llms.txt → ${out} (style.css?v=${cssHash})`);

@@ -2,5 +2,4 @@
 site/dist
 scripts
 .github
-.concepts
-cli
+node_modules

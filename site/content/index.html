@@ -50,6 +50,29 @@
 <p class="thesis-who">The idea behind the format.</p>
 
 <section>
+  <h2>Before and after</h2>
+  <p>The same request, with and without a concept base in the repository.</p>
+  <div class="cases">
+    <div class="case">
+      <p class="req">"Let users edit last month's invoice."</p>
+      <p class="wo"><span>Without</span>Adds an edit endpoint to the invoice.</p>
+      <p class="wi"><span>With</span>Reads Invoice: "cannot change after it is finalized, requires a proration". Builds a proration.</p>
+    </div>
+    <div class="case">
+      <p class="req">"Churn by cohort."</p>
+      <p class="wo"><span>Without</span>Invents a query over raw events and mixes up user churn with revenue churn.</p>
+      <p class="wi"><span>With</span>Uses <code>fct_churn</code> and the 28-day active-user definition from the Churn concept.</p>
+    </div>
+    <div class="case">
+      <p class="req">"Add caching to the dashboard page."</p>
+      <p class="wo"><span>Without</span>Calls <code>unstable_cache</code>, the API it learned in training.</p>
+      <p class="wi"><span>With</span>Sees "Replaces the old cache helper" on the map and uses cache components.</p>
+    </div>
+  </div>
+  <p class="more">Six situations in detail, with the files: <a href="/use-cases">Use cases</a>.</p>
+</section>
+
+<section>
   <h2>One concept, one file</h2>
   <div class="two">
     <figure>
@@ -82,6 +105,7 @@ Source: `src/billing/invoice.ts`.
     </figure>
   </div>
   <p>Two fields are required: a title and a one-sentence definition. A connection is a sentence whose first word is the type. The map lists every concept on one line, and the agent sees it on every turn.</p>
+  <p class="more">See a whole base: <a href="/wiki">this site's own sixteen concepts</a>, rendered as the wiki.</p>
 </section>
 
 <section>
@@ -100,14 +124,6 @@ Source: `src/billing/invoice.ts`.
   </dl>
 </section>
 
-<section>
-  <h2>How it works</h2>
-  <ol class="steps">
-    <li><strong>The map is always in context.</strong> One line in <code>AGENTS.md</code> points to <code>.concepts/index.md</code>.</li>
-    <li><strong>Files load when needed.</strong> When a task touches a concept, the agent opens its file and follows the connections.</li>
-    <li><strong>The agent keeps it current.</strong> A skill tells it when to add, fix and retire concepts, in the same change as the code. You review the diff.</li>
-  </ol>
-</section>
 
 <section>
   <h2>Get started</h2>

@@ -60,4 +60,4 @@ MIT. See [LICENSE](LICENSE).
 - `SPEC.md`: the format.
 - `skills/concepts/`: the skill, which teaches an agent to read, write and maintain a base.
 - `cli/`: the `concepts` command.
-- `site/`: the site at concepts.sh. `bun site/build.mjs` writes it to `site/dist/`: home, spec (rendered from `SPEC.md`), best practices, examples.
+- `site/`: the site at concepts.sh. `bun site/build.mjs` writes it to `site/dist/`: home, spec (rendered from `SPEC.md`), best practices, use cases, and the repository's own base as a wiki.
