@@ -1,7 +1,7 @@
 <section class="hero">
   <div>
     <p class="eyebrow">An open format for agent knowledge</p>
-    <h1>Agents need skills. They also need concepts.</h1>
+    <h1>Agents need skills.<br>They also need <em>concepts.</em></h1>
     <p class="lead">A skill tells an agent how to do a task. A concept tells it what a thing means in your project, and how it connects to other things. A <code>.concepts/</code> folder of plain markdown holds them.</p>
     <div class="install"><code id="cmd">npx concepts-sh init</code><button class="copy" type="button" id="copy">Copy</button></div>
     <script>
@@ -42,7 +42,7 @@
         <rect class="sw sw-c" x="182" y="0" width="10" height="10" rx="2"/><text class="e" x="198" y="9">contrast</text>
       </g>
     </svg>
-    <p class="caption">One concept and its connections.</p>
+    <p class="caption">Fig. 1 — One concept and its connections.</p>
   </div>
 </section>
 
@@ -87,44 +87,17 @@ Source: `src/billing/invoice.ts`.
 <section>
   <h2>Why concepts</h2>
   <p>A model knows what an invoice is. It cannot know what <em>your</em> invoice is, or that it must never change after it is finalized. No training run contains that. Concepts give it that knowledge, and keep it.</p>
-  <div class="cards">
-    <div>
-      <h3>Shared understanding</h3>
-      <p>People and agents use the same defined words. The agent stops guessing what your words mean, and conversations get shorter.</p>
-    </div>
-    <div>
-      <h3>Evolves with the project</h3>
-      <p>Grows from corrections, and changes in the same commit as the code. Never a stale wiki.</p>
-    </div>
-    <div>
-      <h3>Progressive disclosure</h3>
-      <p>The map is always in mind, about 4,000 tokens for a hundred concepts. Files load only when a task touches them.</p>
-    </div>
-    <div>
-      <h3>Typed connections</h3>
-      <p>Eight relationship types give the agent the shape of your domain, not a glossary. "Part of a workspace, never of a user" is what stops the wrong change.</p>
-    </div>
-    <div>
-      <h3>Sources, not copies</h3>
-      <p>Every concept points to the file or document that defines it, so it stays correct and stale ones are easy to find.</p>
-    </div>
-    <div>
-      <h3>Reviewable like code</h3>
-      <p>Plain markdown in git. A change of meaning shows up in the pull request, next to the code that caused it.</p>
-    </div>
-    <div>
-      <h3>Checkable</h3>
-      <p>Six validity rules: links resolve, every concept has a definition, the map matches the files. Run by the agent, or by <code>npx concepts-sh check</code> in CI.</p>
-    </div>
-    <div>
-      <h3>Shareable</h3>
-      <p>Push the repo and every concept has a URL. Others link to your concepts, pinned to a version, and write their own with yours as the source.</p>
-    </div>
-    <div>
-      <h3>No lock-in</h3>
-      <p>No tool, no server, no database. Works in any agent that reads <code>AGENTS.md</code>, and the files open in Obsidian or any markdown viewer.</p>
-    </div>
-  </div>
+  <dl class="entries">
+    <div><dt>Shared understanding</dt><dd>People and agents use the same defined words. The agent stops guessing what your words mean, and conversations get shorter.</dd></div>
+    <div><dt>Evolves with the project</dt><dd>Grows from corrections, and changes in the same commit as the code. Never a stale wiki.</dd></div>
+    <div><dt>Progressive disclosure</dt><dd>The map is always in mind, about 4,000 tokens for a hundred concepts. Files load only when a task touches them.</dd></div>
+    <div><dt>Typed connections</dt><dd>Eight relationship types give the agent the shape of your domain, not a glossary. "Part of a workspace, never of a user" is what stops the wrong change.</dd></div>
+    <div><dt>Sources, not copies</dt><dd>Every concept points to the file or document that defines it, so it stays correct and stale ones are easy to find.</dd></div>
+    <div><dt>Reviewable like code</dt><dd>Plain markdown in git. A change of meaning shows up in the pull request, next to the code that caused it.</dd></div>
+    <div><dt>Checkable</dt><dd>Six validity rules: links resolve, every concept has a definition, the map matches the files. Run by the agent, or by <code>npx concepts-sh check</code> in CI.</dd></div>
+    <div><dt>Shareable</dt><dd>Push the repo and every concept has a URL. Others link to your concepts, pinned to a version, and write their own with yours as the source.</dd></div>
+    <div><dt>No lock-in</dt><dd>No tool, no server, no database. Works in any agent that reads <code>AGENTS.md</code>, and the files open in Obsidian or any markdown viewer.</dd></div>
+  </dl>
 </section>
 
 <section>
@@ -166,12 +139,12 @@ Source: `src/billing/invoice.ts`.
 <section>
   <h2>Works with any agent</h2>
   <p>A concept base is markdown files and one line in <code>AGENTS.md</code>. Every agent that reads that file can use it today.</p>
-  <div class="works"><span>Claude Code</span><span>Codex</span><span>Cursor</span><span>GitHub Copilot</span><span>Gemini CLI</span><span>Amp</span><span>OpenCode</span><span>Any agent that reads AGENTS.md</span></div>
+  <p class="works"><span>Claude Code</span><span>Codex</span><span>Cursor</span><span>GitHub Copilot</span><span>Gemini CLI</span><span>Amp</span><span>OpenCode</span><span>Any agent that reads AGENTS.md</span></p>
 </section>
 
 <section>
   <h2>Questions</h2>
-  <dl>
+  <dl class="faq">
     <dt>Is this memory?</dt>
     <dd>No. Memory is what one agent remembers privately. Concepts are shared meaning: in git, reviewed by the team, read by any agent.</dd>
     <dt>Why files and not a database?</dt>
