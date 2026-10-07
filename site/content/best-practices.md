@@ -1,6 +1,6 @@
 # Best practices
 
-Nine rules for writing concepts that are clear, correct and essential.
+How to write clear, correct and essential concepts.
 
 ## 1. Write the description first
 

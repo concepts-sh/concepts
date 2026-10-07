@@ -50,7 +50,7 @@ Two fields are required: a title and a one-sentence definition. A connection is 
 | "Churn by cohort." | Invents a query over raw events and mixes up user churn with revenue churn. | Uses `fct_churn` and the 28-day active-user definition from the Churn concept. |
 | "Add caching to the dashboard page." | Calls `unstable_cache`, the API it learned in training. | Sees "Replaces the old cache helper" on the map and uses cache components. |
 
-Six situations with the files: [use cases](https://concepts.sh/use-cases).
+More, with the files: [use cases](https://concepts.sh/use-cases).
 
 ## Get started
 

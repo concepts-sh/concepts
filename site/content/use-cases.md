@@ -1,6 +1,6 @@
 # Use cases
 
-Six situations where an agent does work on something with its own rules. In each: what goes wrong without concepts, what you write, and what changes.
+Where concepts change what an agent does: what goes wrong without them, what you write, and what changes.
 
 ## A product team with a codebase
 

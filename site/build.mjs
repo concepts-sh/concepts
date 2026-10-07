@@ -183,8 +183,8 @@ A concept is one markdown file with two required fields, \`title\` and \`descrip
 ## Format
 
 - [Specification](https://concepts.sh/spec.md): structure, the concept file, the eight relationship types, style, the map, loading, changes, validity, compatibility.
-- [Best practices](https://concepts.sh/best-practices.md): nine rules for writing concepts.
-- [Use cases](https://concepts.sh/use-cases.md): six situations, each with the files.
+- [Best practices](https://concepts.sh/best-practices.md): how to write clear, correct and essential concepts.
+- [Use cases](https://concepts.sh/use-cases.md): where concepts change what an agent does, with the files.
 
 ## For agents
 
