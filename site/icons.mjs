@@ -1,10 +1,10 @@
-// Generates the favicon set with no dependencies: a blue tile with the concepts mark
+// Generates the favicon set with no dependencies: a black tile with the concepts mark
 // (one node, three connections). Writes favicon.svg, favicon.ico and apple-touch-icon.png.
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { deflateSync } from "node:zlib";
 
-const BLUE = [29, 78, 216];
+const BLUE = [17, 19, 24]; // the tile colour: near-black, matching the site's text colour
 // Geometry in a 32-unit square.
 const CENTER = [16, 17, 4.6];
 const SATELLITES = [[7, 8, 2.7], [25, 8, 2.7], [16, 28, 2.7]];

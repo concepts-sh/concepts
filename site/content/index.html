@@ -3,7 +3,18 @@
     <p class="eyebrow">An open format for agent knowledge</p>
     <h1>Agents need skills. They also need concepts.</h1>
     <p class="lead">A skill tells an agent how to do a task. A concept tells it what a thing means in your project, and how it connects to other things. A <code>.concepts/</code> folder of plain markdown holds them.</p>
-    <div class="install"><code>npx concepts init</code><span>or make the folder by hand. No tool is needed.</span></div>
+    <div class="install"><code id="cmd">npx concepts init</code><button class="copy" type="button" id="copy">Copy</button></div>
+    <script>
+    document.getElementById("copy").addEventListener("click", function () {
+      var b = this, text = document.getElementById("cmd").textContent;
+      function done() { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 2000); }
+      function fallback() {
+        var t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+        document.body.appendChild(t); t.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(t); done();
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+    });
+    </script>
   </div>
   <div>
     <svg class="graph" viewBox="0 0 440 300" role="img" aria-label="The concept Invoice with its typed connections: part of Workspace, requires Proration, causes Payment attempt, not Receipt">
@@ -149,5 +160,6 @@ Source: `src/billing/invoice.ts`.
 
 <section class="cta">
   <a href="spec.html"><strong>Specification</strong><span>The whole format on one page.</span></a>
-  <a href="writing.html"><strong>Writing concepts</strong><span>Nine rules and three example bases.</span></a>
+  <a href="best-practices.html"><strong>Best practices</strong><span>Nine rules for writing good concepts.</span></a>
+  <a href="examples.html"><strong>Examples</strong><span>Three complete bases you can copy.</span></a>
 </section>
