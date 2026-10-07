@@ -356,6 +356,11 @@ pre { background:var(--panel); border:1px solid var(--line); padding:12px; borde
 #bigwrap button { position:absolute; top:12px; right:12px; z-index:11; }
 #bigfoot { position:absolute; left:16px; right:16px; bottom:10px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--muted); pointer-events:none; }
 #big { height: calc(100% - 40px); }
+#expand { float:right; font-size:12px; padding:3px 8px; border:1px solid var(--line); background:var(--bg); color:var(--fg); border-radius:4px; cursor:pointer; }
+#bigwrap.focus #big { width: calc(100% - 380px); }
+#bigside { display:none; position:absolute; right:0; top:0; bottom:0; width:380px; overflow:auto; padding:52px 18px 18px; border-left:1px solid var(--line); background:var(--panel); }
+#bigwrap.focus #bigside { display:block; }
+#bigside h1 { font-size:20px; margin-bottom:2px; } #bigside .desc { font-size:14px; color:var(--muted); margin-bottom:14px; }
 </style>
 </head>
 <body>
@@ -366,12 +371,12 @@ pre { background:var(--panel); border:1px solid var(--line); padding:12px; borde
 </nav>
 <main id="main"></main>
 <aside>
-  <h2 style="margin-top:0">Focus</h2>
+  <h2 style="margin-top:0">Focus <button id="expand" onclick="expandFocus()">Expand</button></h2>
   <div id="graph"></div>
   <div class="legend"><span style="background:var(--hier)"></span>hierarchy<span style="background:var(--assoc)"></span>association<span style="background:var(--ident)"></span>identity<span style="background:var(--contrast)"></span>contrast</div>
   <div id="side"></div>
 </aside>
-<div id="bigwrap"><button onclick="closeBig()">Close</button><div id="big"></div><div id="bigfoot"><span id="bigtip"></span><span id="biglegend" class="legend"></span></div></div>
+<div id="bigwrap"><button onclick="closeBig()">Close</button><div id="big"></div><div id="bigside"></div><div id="bigfoot"><span id="bigtip"></span><span id="biglegend" class="legend"></span></div></div>
 <script>
 var DATA = /*DATA*/;
 var byId = {}; DATA.concepts.forEach(function (c) { byId[c.id] = c; });
@@ -493,25 +498,22 @@ function renderHealth() {
 
 var EDGE_COLOR = { hierarchy: "var(--hier)", identity: "var(--ident)", contrast: "var(--contrast)", association: "var(--assoc)", untyped: "var(--untyped)" };
 function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name.slice(4, -1)).trim(); }
-function style() {
+function style(s) {
+  s = s || 1;
   return [
-    { selector: "node", style: { label: "data(label)", "font-size": 11, "text-wrap": "wrap", "text-max-width": 110, "text-valign": "center", "text-halign": "center", "background-color": cssVar("var(--panel)"), "border-color": cssVar("var(--muted)"), "border-width": 1, color: cssVar("var(--fg)"), width: 120, height: 36, shape: "round-rectangle" } },
+    { selector: "node", style: { label: "data(label)", "font-size": 11 * s, "text-wrap": "wrap", "text-max-width": 110 * s, "text-valign": "center", "text-halign": "center", "background-color": cssVar("var(--panel)"), "border-color": cssVar("var(--muted)"), "border-width": 1, color: cssVar("var(--fg)"), width: 120 * s, height: 36 * s, shape: "round-rectangle" } },
     { selector: "node.center", style: { "border-color": cssVar("var(--accent)"), "border-width": 2, "font-weight": "bold" } },
     { selector: "node.ghost", style: { "border-style": "dashed", color: cssVar("var(--muted)") } },
     { selector: "node.colored", style: { "border-color": "data(color)", "border-width": 2 } },
     { selector: ":parent", style: { "background-opacity": 0.06, "border-color": cssVar("var(--line)"), "text-valign": "top", "font-size": 11, color: cssVar("var(--muted)"), padding: 12 } },
-    { selector: "edge", style: { width: 1.5, "curve-style": "bezier", "target-arrow-shape": "triangle", "arrow-scale": 0.8, label: "data(label)", "font-size": 9, color: cssVar("var(--muted)"), "text-rotation": "autorotate", "text-background-color": cssVar("var(--bg)"), "text-background-opacity": 1, "text-background-padding": 2 } },
+    { selector: "edge", style: { width: 1.5, "curve-style": "bezier", "target-arrow-shape": "triangle", "arrow-scale": 0.8, label: "data(label)", "font-size": 9 * s, color: cssVar("var(--muted)"), "text-rotation": "autorotate", "text-background-color": cssVar("var(--bg)"), "text-background-opacity": 1, "text-background-padding": 2 } },
   ].concat(Object.keys(EDGE_COLOR).map(function (f) { return { selector: "edge." + f, style: { "line-color": cssVar(EDGE_COLOR[f]), "target-arrow-color": cssVar(EDGE_COLOR[f]) } }; }))
    .concat([{ selector: "edge.quiet", style: { label: "" } }]);
 }
 function dedupe(edges) { // both sides may state one relationship; draw it once
   var seen = {}; return edges.filter(function (e) { var k = e.data.source + ">" + e.data.target + ":" + e.data.label; var r = [e.data.target, e.data.source].join(">") + ":" + e.data.label; if (seen[k] || (e.classes === "contrast" || e.classes === "identity") && seen[r]) return false; seen[k] = true; return true; });
 }
-var focusCy = null;
-function renderFocus(c) {
-  var el = document.getElementById("graph"), side = document.getElementById("side");
-  if (!c) { el.innerHTML = ""; side.innerHTML = '<p class="ghost">Open a concept to see its neighbourhood: parents above, children below, associations left, identity and contrast right.</p>'; if (focusCy) { focusCy.destroy(); focusCy = null; } return; }
-  side.innerHTML = "";
+function focusElements(c, scale) {
   var nodes = {}, edges = [], groups = { up: [], down: [], left: [], right: [] };
   function add(id, label, ghost) { if (!nodes[id]) nodes[id] = { data: { id: id, label: label }, classes: ghost ? "ghost" : "" }; }
   add(c.id, c.title); nodes[c.id].classes = "center";
@@ -533,19 +535,46 @@ function renderFocus(c) {
   });
   edges = dedupe(edges);
   var pos = {}; pos[c.id] = { x: 0, y: 0 };
-  function spread(ids, axis, fixed) { var gap = axis === "x" ? 140 : 56; ids.forEach(function (id, i) { var v = (i - (ids.length - 1) / 2) * gap; pos[id] = axis === "x" ? { x: v, y: fixed } : { x: fixed, y: v }; }); }
+  function spread(ids, axis, fixed) { var gap = (axis === "x" ? 140 : 56) * scale; ids.forEach(function (id, i) { var v = (i - (ids.length - 1) / 2) * gap; pos[id] = axis === "x" ? { x: v, y: fixed * scale } : { x: fixed * scale, y: v }; }); }
   spread(groups.up, "x", -130); spread(groups.down, "x", 130); spread(groups.left, "y", -260); spread(groups.right, "y", 260);
-  var elements = Object.keys(nodes).map(function (id) { var n = nodes[id]; n.position = pos[id] || { x: 0, y: 0 }; return n; }).concat(edges);
+  return Object.keys(nodes).map(function (id) { var n = nodes[id]; n.position = pos[id] || { x: 0, y: 0 }; return n; }).concat(edges);
+}
+var focusCy = null;
+function renderFocus(c) {
+  var el = document.getElementById("graph"), side = document.getElementById("side"), expand = document.getElementById("expand");
+  expand.style.display = c ? "" : "none";
+  if (!c) { el.innerHTML = ""; side.innerHTML = '<p class="ghost">Open a concept to see its neighbourhood: parents above, children below, associations left, identity and contrast right.</p>'; if (focusCy) { focusCy.destroy(); focusCy = null; } return; }
+  side.innerHTML = "";
   if (focusCy) focusCy.destroy();
-  focusCy = cytoscape({ container: el, elements: elements, style: style(), layout: { name: "preset", fit: true, padding: 20 }, userZoomingEnabled: true });
+  focusCy = cytoscape({ container: el, elements: focusElements(c, 1), style: style(), layout: { name: "preset", fit: true, padding: 20 }, userZoomingEnabled: true });
   focusCy.on("tap", "node", function (e) { var id = e.target.id(); if (byId[id]) location.hash = "#" + id; else if (/^[a-z]+:\/\//i.test(id)) window.open(id, "_blank"); });
-  focusCy.on("mouseover", "edge", function (e) { side.innerHTML = '<p class="' + "" + '">' + esc(e.target.data("title")) + "</p>"; });
+  focusCy.on("mouseover", "edge", function (e) { side.innerHTML = "<p>" + esc(e.target.data("title")) + "</p>"; });
+}
+function relationshipList(c) {
+  var html = "<h1>" + esc(c.title) + '</h1><p class="desc">' + esc(c.description) + "</p>";
+  if (c.connections.length) { html += "<h2>Its connections</h2><ul class=\"conn\">"; c.connections.forEach(function (k) { html += '<li class="' + k.family + '">' + inline(c, k.sentence) + "</li>"; }); html += "</ul>"; }
+  var inb = inbound[c.id] || [];
+  if (inb.length) { html += "<h2>Said about it elsewhere</h2><ul class=\"conn\">"; inb.forEach(function (x) { var f = byId[x.from]; html += '<li class="' + x.k.family + '"><div class="from"><a href="#' + esc(f.id) + '">' + esc(f.title) + "</a></div>" + inline(f, x.k.sentence) + "</li>"; }); html += "</ul>"; }
+  if (!c.connections.length && !inb.length) html += '<p class="ghost">No connections yet.</p>';
+  return html;
+}
+function expandFocus() { var c = byId[decodeURIComponent(location.hash.slice(1))]; if (c) renderBigFocus(c); }
+function renderBigFocus(c) {
+  var wrap = document.getElementById("bigwrap"); wrap.style.display = "block"; wrap.className = "focus";
+  document.getElementById("biglegend").innerHTML = '<span style="background:var(--hier)"></span>hierarchy<span style="background:var(--assoc)"></span>association<span style="background:var(--ident)"></span>identity<span style="background:var(--contrast)"></span>contrast';
+  document.getElementById("bigtip").textContent = "Parents above, children below, associations left, identity and contrast right. Click a concept to centre it.";
+  document.getElementById("bigside").innerHTML = relationshipList(c);
+  if (bigCy) bigCy.destroy();
+  bigCy = cytoscape({ container: document.getElementById("big"), elements: focusElements(c, 2), style: style(1.5), layout: { name: "preset", fit: true, padding: 60 } });
+  bigCy.on("tap", "node", function (e) { var id = e.target.id(); if (byId[id]) location.hash = "#" + id; else if (/^[a-z]+:\/\//i.test(id)) window.open(id, "_blank"); });
+  bigCy.on("mouseover", "edge", function (e) { document.getElementById("bigtip").textContent = e.target.data("title"); });
 }
 
 var bigCy = null;
 var FOLDER_COLORS = ["#2563eb", "#059669", "#7c3aed", "#d97706", "#db2777", "#0891b2", "#65a30d", "#dc2626"];
 function renderBig() {
-  document.getElementById("bigwrap").style.display = "block";
+  var wrap = document.getElementById("bigwrap"); wrap.style.display = "block"; wrap.className = "";
+  document.getElementById("bigtip").textContent = "";
   var elements = [], folderIndex = {};
   DATA.folders.forEach(function (f, i) { folderIndex[f] = i; });
   DATA.concepts.forEach(function (c) { elements.push({ data: { id: c.id, label: c.title, color: FOLDER_COLORS[folderIndex[c.folder] % FOLDER_COLORS.length] }, classes: "colored" }); });
@@ -563,7 +592,7 @@ function renderBig() {
   bigCy.on("mouseover", "edge", function (e) { document.getElementById("bigtip").textContent = e.target.data("title"); });
   bigCy.on("mouseout", "edge", function () { document.getElementById("bigtip").textContent = ""; });
 }
-function closeBig() { document.getElementById("bigwrap").style.display = "none"; if (location.hash === "#!graph") location.hash = "#"; }
+function closeBig() { var wrap = document.getElementById("bigwrap"); wrap.style.display = "none"; wrap.className = ""; if (location.hash === "#!graph") location.hash = "#"; }
 
 function route() {
   var h = decodeURIComponent(location.hash.slice(1));
@@ -571,7 +600,7 @@ function route() {
   if (h === "!order") return renderOrder();
   if (h === "!health") return renderHealth();
   if (h === "!graph") return renderBig();
-  if (byId[h]) { renderConcept(byId[h]); document.getElementById("main").scrollTop = 0; return; }
+  if (byId[h]) { renderConcept(byId[h]); document.getElementById("main").scrollTop = 0; var wrap = document.getElementById("bigwrap"); if (wrap.style.display === "block" && wrap.className === "focus") renderBigFocus(byId[h]); return; }
   renderHome();
 }
 if (DATA.public) document.getElementById("home").style.display = "block";
