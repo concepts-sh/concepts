@@ -85,19 +85,44 @@ Source: `src/billing/invoice.ts`.
 </section>
 
 <section>
-  <h2>Why</h2>
+  <h2>Why concepts</h2>
+  <p>A model knows what an invoice is. It cannot know what <em>your</em> invoice is, or that it must never change after it is finalized. No training run contains that. Concepts give it that knowledge, and keep it.</p>
   <div class="cards">
     <div>
-      <h3>Meaning is local</h3>
-      <p>A model knows what an invoice is. It cannot know what <em>your</em> invoice is, or that it must never change after it is finalized. No training run contains that.</p>
+      <h3>Shared understanding</h3>
+      <p>People and agents use the same defined words. The agent stops guessing what your words mean, and conversations get shorter.</p>
     </div>
     <div>
-      <h3>Fix it once</h3>
-      <p>When the agent gets a term wrong, fix the concept file. Every agent on the team has the fix from then on. The base grows from corrections.</p>
+      <h3>Evolves with the project</h3>
+      <p>Grows from corrections, and changes in the same commit as the code. Never a stale wiki.</p>
     </div>
     <div>
-      <h3>Connections prevent bugs</h3>
-      <p>"Part of a workspace, never of a user" and "not a receipt" are what stop the wrong change. The map carries them, so the agent sees the shape of your domain.</p>
+      <h3>Progressive disclosure</h3>
+      <p>The map is always in mind, about 4,000 tokens for a hundred concepts. Files load only when a task touches them.</p>
+    </div>
+    <div>
+      <h3>Typed connections</h3>
+      <p>Eight relationship types give the agent the shape of your domain, not a glossary. "Part of a workspace, never of a user" is what stops the wrong change.</p>
+    </div>
+    <div>
+      <h3>Sources, not copies</h3>
+      <p>Every concept points to the file or document that defines it, so it stays correct and stale ones are easy to find.</p>
+    </div>
+    <div>
+      <h3>Reviewable like code</h3>
+      <p>Plain markdown in git. A change of meaning shows up in the pull request, next to the code that caused it.</p>
+    </div>
+    <div>
+      <h3>Checkable</h3>
+      <p>Six validity rules: links resolve, every concept has a definition, the map matches the files. Run by the agent, or by <code>npx concepts check</code> in CI.</p>
+    </div>
+    <div>
+      <h3>Shareable</h3>
+      <p>Push the repo and every concept has a URL. Others link to your concepts, pinned to a version, and write their own with yours as the source.</p>
+    </div>
+    <div>
+      <h3>No lock-in</h3>
+      <p>No tool, no server, no database. Works in any agent that reads <code>AGENTS.md</code>, and the files open in Obsidian or any markdown viewer.</p>
     </div>
   </div>
 </section>
