@@ -8,14 +8,28 @@
     "type": "git",
     "url": "git+https://github.com/concepts-sh/concepts.git"
   },
+  "type": "module",
   "bin": {
-    "concepts": "cli/concepts.mjs"
+    "concepts": "dist/concepts.mjs"
   },
   "files": [
-    "cli",
+    "dist",
     "skills",
     "SPEC.md"
   ],
+  "scripts": {
+    "build": "bun build cli/concepts.ts --target=node --outfile dist/concepts.mjs",
+    "prepublishOnly": "bun run build",
+    "check": "bun cli/concepts.ts check",
+    "wiki": "bun cli/concepts.ts wiki",
+    "site": "bun site/build.ts",
+    "serve": "bun site/serve.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "latest"
+  },
   "engines": {
     "node": ">=18"
   },

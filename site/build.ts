@@ -1,11 +1,11 @@
-#!/usr/bin/env node
-// Builds the static site into site/dist. No dependencies.
+// Builds the site into site/dist.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, cpSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
-import { writeIcons } from "./icons.mjs";
+import { writeIcons } from "./icons";
+import { wikiData } from "../cli/wiki";
+import template from "../cli/wiki.tpl" with { type: "text" };
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -15,10 +15,10 @@ mkdirSync(out, { recursive: true });
 
 // ---------- markdown ----------
 
-function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-function slug(s) { return s.toLowerCase().replace(/<[^>]+>/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+function esc(s: string): string { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c as "&" | "<" | ">" | '"']); }
+function slug(s: string): string { return s.toLowerCase().replace(/<[^>]+>/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 
-function inline(s) {
+function inline(s: string): string {
   s = esc(s);
   s = s.replace(/`([^`]+)`/g, (m, c) => `<code>${c}</code>`);
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => `<a href="${u}">${t}</a>`);
@@ -27,17 +27,17 @@ function inline(s) {
   return s;
 }
 
-function markdown(src) {
+function markdown(src: string): { html: string; headings: { id: string; text: string }[] } {
   const lines = src.split("\n");
-  const html = [];
-  const headings = [];
+  const html: string[] = [];
+  const headings: { id: string; text: string }[] = [];
   let i = 0;
   const peek = () => lines[i];
   while (i < lines.length) {
     const line = peek();
     if (line.startsWith("```")) {
       const lang = line.slice(3).trim();
-      const buf = [];
+      const buf: string[] = [];
       i++;
       while (i < lines.length && !lines[i].startsWith("```")) buf.push(lines[i++]);
       i++;
@@ -53,15 +53,15 @@ function markdown(src) {
     }
     if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) { html.push("<hr>"); i++; continue; }
     if (line.startsWith("> ")) {
-      const buf = [];
+      const buf: string[] = [];
       while (i < lines.length && lines[i].startsWith("> ")) buf.push(lines[i++].slice(2));
       html.push(`<blockquote><p>${inline(buf.join(" "))}</p></blockquote>`);
       continue;
     }
     if (line.startsWith("|")) {
-      const rows = [];
+      const rows: string[] = [];
       while (i < lines.length && lines[i].startsWith("|")) rows.push(lines[i++]);
-      const cells = (r) => r.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+      const cells = (r: string) => r.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
       const head = cells(rows[0]);
       const body = rows.slice(2).map(cells);
       html.push(`<table><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${body.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`);
@@ -70,7 +70,7 @@ function markdown(src) {
     const li = line.match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
     if (li) {
       const ordered = /\d/.test(li[2]);
-      const items = [];
+      const items: string[] = [];
       while (i < lines.length) {
         const m = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
         if (m && m[1].length === li[1].length) { items.push(m[3]); i++; }
@@ -81,25 +81,22 @@ function markdown(src) {
       continue;
     }
     if (!line.trim()) { i++; continue; }
-    const buf = [];
+    const buf: string[] = [];
     while (i < lines.length && lines[i].trim() && !/^(#{1,6}\s|```|>\s|\||\s*([-*]|\d+\.)\s)/.test(lines[i])) buf.push(lines[i++]);
     html.push(`<p>${inline(buf.join(" "))}</p>`);
   }
   return { html: html.join("\n"), headings };
 }
 
-// ---------- code colouring ----------
-// Runs over already-escaped code so the samples read like the files they show:
-// front-matter keys, headings, links, comments, and connection openers by family.
-
-const OPENER_CLASS = [
+// Code colouring over escaped code: front-matter keys, headings, links, comments, openers by family.
+const OPENER_CLASS: [RegExp, string][] = [
   [/^(- )(Kind of|Kinds:|Part of|Parts:)(?=[\s])/, "o-h"],
   [/^(- )(Same as|Replaces|Replaced by)(?=[\s])/, "o-i"],
   [/^(- )(Not)(?=[\s])/, "o-c"],
   [/^(- )(Requires|Required by|Causes|Caused by|Used for|Uses)(?=[\s])/, "o-a"],
 ];
 
-function colour(code) {
+function colour(code: string): string {
   return code.split("\n").map((line) => {
     if (/^---\s*$/.test(line)) return `<span class="k">${line}</span>`;
     const fm = line.match(/^(title|description):(.*)$/);
@@ -107,31 +104,30 @@ function colour(code) {
     if (/^#{1,6}\s/.test(line)) return `<span class="h">${line}</span>`;
     let out = line;
     for (const [re, cls] of OPENER_CLASS) {
-      if (re.test(out)) { out = out.replace(re, (m, dash, word) => `${dash}<span class="${cls}">${word}</span>`); break; }
+      if (re.test(out)) { out = out.replace(re, (_m, dash, word) => `${dash}<span class="${cls}">${word}</span>`); break; }
     }
-    out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => `<span class="l">[${t}]</span><span class="u">(${u})</span>`);
-    out = out.replace(/(\s)(#\s.*)$/, (m, s, c) => `${s}<span class="c">${c}</span>`);
+    out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, t, u) => `<span class="l">[${t}]</span><span class="u">(${u})</span>`);
+    out = out.replace(/(\s)(#\s.*)$/, (_m, sp, c) => `${sp}<span class="c">${c}</span>`);
     return out;
   }).join("\n");
 }
 
-function colourBlocks(html) {
-  return html.replace(/<pre([^>]*)><code>([\s\S]*?)<\/code><\/pre>/g, (m, attrs, code) => `<pre${attrs}><code>${colour(code)}</code></pre>`);
+function colourBlocks(html: string): string {
+  return html.replace(/<pre([^>]*)><code>([\s\S]*?)<\/code><\/pre>/g, (_m, attrs, code) => `<pre${attrs}><code>${colour(code)}</code></pre>`);
 }
 
 // ---------- pages ----------
 
-// The stylesheet is cached for a day by nginx, so its URL carries a hash of its content:
-// every build that changes it is a new URL, and no visitor sees new pages with old styles.
+// Hashed asset URLs: nginx caches them, and a change is a new URL.
 const css = readFileSync(join(here, "style.css"));
 const cssHash = createHash("sha256").update(css).digest("hex").slice(0, 10);
-// The icons are versioned the same way, from the generator's source, so a colour change is a new URL.
-const iconHash = createHash("sha256").update(readFileSync(join(here, "icons.mjs"))).digest("hex").slice(0, 10);
+const iconHash = createHash("sha256").update(readFileSync(join(here, "icons.ts"))).digest("hex").slice(0, 10);
 const layout = readFileSync(join(here, "layout.html"), "utf8")
   .replace('href="/style.css"', `href="/style.css?v=${cssHash}"`)
-  .replace(/href="\/(favicon\.ico|favicon\.svg|apple-touch-icon\.png)"/g, (m, f) => `href="/${f}?v=${iconHash}"`)
+  .replace(/href="\/(favicon\.ico|favicon\.svg|apple-touch-icon\.png)"/g, (_m, f) => `href="/${f}?v=${iconHash}"`)
   .replace('content="https://concepts.sh/icon-512.png"', `content="https://concepts.sh/icon-512.png?v=${iconHash}"`);
-const pages = [
+type Page = { file: string; title: string; nav: string; source: string; raw?: boolean; toc?: boolean };
+const pages: Page[] = [
   { file: "index.html", title: "Concepts", nav: "home", source: join(here, "content", "index.html"), raw: true },
   { file: "spec.html", title: "Specification", nav: "spec", source: join(root, "SPEC.md"), toc: true },
   { file: "best-practices.html", title: "Best practices", nav: "best-practices", source: join(here, "content", "best-practices.md"), toc: true },
@@ -140,7 +136,7 @@ const pages = [
 
 for (const p of pages) {
   const src = readFileSync(p.source, "utf8");
-  let body, toc = "";
+  let body: string, toc = "";
   if (p.raw) body = src;
   else {
     const r = markdown(src);
@@ -169,8 +165,9 @@ writeFileSync(join(out, "use-cases.md"), useCases);
 cpSync(join(root, "skills", "concepts"), join(out, "skill"), { recursive: true });
 const skill = readFileSync(join(root, "skills", "concepts", "SKILL.md"), "utf8");
 
-// The live base: the repository's own .concepts/ rendered by the CLI's wiki builder, public mode.
-execFileSync(process.execPath, [join(root, "cli", "concepts.mjs"), "wiki", join(root, ".concepts"), "--no-open", "--public", "--out", join(out, "wiki.html")], { stdio: "inherit" });
+// The live base: this repository's own .concepts/, public mode.
+const wikiJson = JSON.stringify(wikiData(join(root, ".concepts"), { public: true })).replace(/<\/script/gi, "<\\/script");
+writeFileSync(join(out, "wiki.html"), template.replace("/*DATA*/", wikiJson));
 
 const llms = `# Concepts
 
@@ -200,7 +197,7 @@ A concept is one markdown file with two required fields, \`title\` and \`descrip
 - [Source repository](https://github.com/concepts-sh/concepts): the standard, the skill, the CLI and this site.
 `;
 writeFileSync(join(out, "llms.txt"), llms);
-const sep = (name) => `\n\n---\n\n<!-- ${name} -->\n\n`;
+const sep = (name: string) => `\n\n---\n\n<!-- ${name} -->\n\n`;
 writeFileSync(join(out, "llms-full.txt"), `<!-- concepts.sh, everything in one file -->\n\n${spec}${sep("best-practices.md")}${bestPractices}${sep("use-cases.md")}${useCases}${sep("skill/SKILL.md")}${skill}`);
 
 console.log(`built ${pages.length} pages, icons, markdown mirrors and llms.txt → ${out} (style.css?v=${cssHash})`);

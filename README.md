@@ -99,18 +99,18 @@ When a relationship needs its own definition, it is a concept: Settlement is the
 |---|---|
 | [`SPEC.md`](SPEC.md) | The format, on one page. The site's spec page is rendered from it. |
 | [`skills/concepts/`](skills/concepts/) | The skill that teaches an agent to read, write and maintain a base. Installable with `npx skills add concepts-sh/concepts`. |
-| [`cli/concepts.mjs`](cli/concepts.mjs) | `init`, `check`, `wiki`. One file, no dependencies, runs under Bun or Node. Published as `concepts-sh`. |
+| [`cli/`](cli/) | `init`, `check`, `wiki`. TypeScript, no runtime dependencies. Published to npm as `concepts-sh`, bundled to one file for Node. |
 | [`.concepts/`](.concepts/) | This repository's own base: the standard described in its own format. Rendered at [concepts.sh/wiki](https://concepts.sh/wiki). |
-| [`site/`](site/) | The site. `bun site/build.mjs` writes it to `site/dist/`. |
+| [`site/`](site/) | The site. `bun run site` writes it to `site/dist/`. |
 
-From a checkout: `bun cli/concepts.mjs check` validates the base, `bun cli/concepts.mjs wiki` opens it, `bun site/build.mjs` builds the site.
+From a checkout: `bun run check` validates the base, `bun run wiki` opens it, `bun run site` builds the site, `bun run typecheck` checks the types.
 
 ## Contributing
 
 Issues and pull requests are welcome. Three things keep the repository consistent:
 
 - `SPEC.md` is the source of truth. A change to the format starts there; the skill's references and the site follow it.
-- `.concepts/` must pass `bun cli/concepts.mjs check`. CI runs it on every pull request.
+- `.concepts/` must pass `bun run check`. CI runs it, and the type check, on every pull request.
 - The spec is written in its own style: short sentences, active voice, must and must not.
 
 ## License

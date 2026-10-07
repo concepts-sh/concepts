@@ -6,7 +6,7 @@ COPY skills ./skills
 COPY cli ./cli
 COPY .concepts ./.concepts
 COPY site ./site
-RUN bun site/build.mjs
+RUN bun site/build.ts
 
 FROM nginx:alpine
 COPY site/nginx.conf /etc/nginx/conf.d/default.conf

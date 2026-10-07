@@ -14,9 +14,9 @@ jobs:
         with:
           bun-version: latest
       - name: Validate the concept base
-        run: bun cli/concepts.mjs check
+        run: bun install --frozen-lockfile && bun run typecheck && bun cli/concepts.ts check
       - name: Build the site
-        run: bun site/build.mjs
+        run: bun site/build.ts
 
   deploy:
     if: github.event_name != 'pull_request'
