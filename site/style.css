@@ -84,7 +84,7 @@ footer .muted { max-width: 34ch; }
 /* home: numbered sections with the numeral in the margin */
 main > section:not(.hero):not(.interlude) { padding: 40px 0 8px; counter-increment: sec; border-top: 1px solid var(--rule); margin-top: 20px; }
 main > section:not(.hero):not(.interlude) > h2::before { content: counter(sec, decimal-leading-zero); display: block; font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; }
-.hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 64px; align-items: center; min-height: calc(100vh - 92px); padding: 0 0 24px; }
+.hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 64px; align-items: center; min-height: calc(100vh - 92px); padding: 0 0 56px; }
 .eyebrow { font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11.5px; margin-bottom: 22px; }
 .hero h1 { font-size: 60px; line-height: 1.02; margin-bottom: 22px; letter-spacing: -0.02em; }
 .hero h1 em { font-size: 1em; color: var(--ink); }
@@ -103,7 +103,11 @@ main > section:not(.hero):not(.interlude) > h2::before { content: counter(sec, d
 .graph .arrow-h { fill: var(--hier); } .graph .arrow-a { fill: var(--assoc); } .graph .arrow-c { fill: var(--contrast); }
 .graph rect.sw { stroke: none; } .graph .sw-h { fill: var(--hier); } .graph .sw-a { fill: var(--assoc); } .graph .sw-c { fill: var(--contrast); }
 .caption { font-family: var(--mono); color: var(--muted); font-size: 11.5px; letter-spacing: 0.03em; margin: 10px 0 0; max-width: none; }
-.interlude { min-height: 78vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 24px 0; }
+.interlude { position: relative; min-height: 78vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 24px 0 64px; }
+.cue { position: absolute; left: 0; bottom: 18px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+.cue span { display: inline-block; margin-right: 10px; }
+.cue:hover { color: var(--ink); text-decoration: none; }
+.interlude .cue { left: 50%; transform: translateX(-50%); }
 .thesis { margin: 0; padding: 0; border: 0; font-size: 38px; line-height: 1.28; max-width: 21em; font-weight: 400; letter-spacing: -0.012em; }
 .thesis p { margin: 0; }
 .thesis-who { font-family: var(--mono); color: var(--muted); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; margin: 28px 0 0; }
@@ -146,6 +150,7 @@ dl.faq dd { margin: 6px 0 0; color: var(--ink-2); }
   main > section:not(.hero):not(.interlude) { padding-top: 28px; }
   .hero { grid-template-columns: 1fr; gap: 24px; min-height: 0; padding: 8px 0 24px; }
   .interlude { min-height: 0; padding: 48px 0 32px; }
+  .cue { display: none; }
   .hero h1 { font-size: 42px; } h1 { font-size: 36px; } h2 { font-size: 26px; }
   .thesis { font-size: 24px; }
   .entries, .steps, .cases { grid-template-columns: 1fr; }
