@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds the static site into site/dist. No dependencies.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, cpSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -124,7 +124,12 @@ function colourBlocks(html) {
 // every build that changes it is a new URL, and no visitor sees new pages with old styles.
 const css = readFileSync(join(here, "style.css"));
 const cssHash = createHash("sha256").update(css).digest("hex").slice(0, 10);
-const layout = readFileSync(join(here, "layout.html"), "utf8").replace('href="style.css"', `href="style.css?v=${cssHash}"`);
+// The icons are versioned the same way, from the generator's source, so a colour change is a new URL.
+const iconHash = createHash("sha256").update(readFileSync(join(here, "icons.mjs"))).digest("hex").slice(0, 10);
+const layout = readFileSync(join(here, "layout.html"), "utf8")
+  .replace('href="style.css"', `href="style.css?v=${cssHash}"`)
+  .replace(/href="(favicon\.ico|favicon\.svg|apple-touch-icon\.png)"/g, (m, f) => `href="${f}?v=${iconHash}"`)
+  .replace('content="https://concepts.sh/icon-512.png"', `content="https://concepts.sh/icon-512.png?v=${iconHash}"`);
 const pages = [
   { file: "index.html", title: "Concepts", nav: "home", source: join(here, "content", "index.html"), raw: true },
   { file: "spec.html", title: "Specification", nav: "spec", source: join(root, "SPEC.md"), toc: true },
@@ -151,4 +156,47 @@ for (const p of pages) {
 }
 copyFileSync(join(here, "style.css"), join(out, "style.css"));
 writeIcons(out);
-console.log(`built ${pages.length} pages and icons → ${out} (style.css?v=${cssHash})`);
+
+// ---------- for agents: markdown mirrors, the skill, llms.txt ----------
+
+const spec = readFileSync(join(root, "SPEC.md"), "utf8");
+const bestPractices = readFileSync(join(here, "content", "best-practices.md"), "utf8");
+const examples = readFileSync(join(here, "content", "examples.md"), "utf8");
+writeFileSync(join(out, "spec.md"), spec);
+writeFileSync(join(out, "best-practices.md"), bestPractices);
+writeFileSync(join(out, "examples.md"), examples);
+cpSync(join(root, "skills", "concepts"), join(out, "skill"), { recursive: true });
+const skill = readFileSync(join(root, "skills", "concepts", "SKILL.md"), "utf8");
+
+const llms = `# Concepts
+
+> An open format for agent knowledge. A \`.concepts/\` folder of plain markdown defines what each term, entity and idea in a project means, and how they connect. Skills tell an agent how to do a task; concepts tell it what things are.
+
+Agents need skills. They also need concepts. The idea behind the format: intelligence means having a sufficient number of clear, correct and essential concepts in your mind, and having established a sufficient number of clear, correct and essential connections among them.
+
+A concept is one markdown file with two required fields, \`title\` and \`description\` (a one-sentence definition), a free body, and an optional \`## Connections\` list. A connection is a sentence whose first word is one of eight relationship types: Kind of, Part of, Same as, Replaces, Not, Requires, Causes, Used for. The map, \`.concepts/index.md\`, lists every concept on one line and is read on every turn through \`AGENTS.md\`.
+
+## Format
+
+- [Specification](https://concepts.sh/spec.md): structure, the concept file, the eight relationship types, style, the map, loading, changes, validity, compatibility.
+- [Best practices](https://concepts.sh/best-practices.md): nine rules for writing concepts.
+- [Examples](https://concepts.sh/examples.md): three complete bases.
+
+## For agents
+
+- [The concepts skill](https://concepts.sh/skill/SKILL.md): how an agent reads, writes and maintains a base. Install with \`npx concepts init\` or \`npx skills add concepts-sh/concepts\`.
+- [Format reference](https://concepts.sh/skill/references/format.md): the spec condensed for the skill.
+- [Relationship types](https://concepts.sh/skill/references/types.md): the eight types with example sentences.
+- [Style](https://concepts.sh/skill/references/style.md): the writing rules.
+- [Template](https://concepts.sh/skill/references/template.md): a concept file to copy.
+
+## Optional
+
+- [Everything in one file](https://concepts.sh/llms-full.txt): the spec, best practices, examples and the skill, concatenated.
+- [Source repository](https://github.com/concepts-sh/concepts): the standard, the skill, the CLI and this site.
+`;
+writeFileSync(join(out, "llms.txt"), llms);
+const sep = (name) => `\n\n---\n\n<!-- ${name} -->\n\n`;
+writeFileSync(join(out, "llms-full.txt"), `<!-- concepts.sh, everything in one file -->\n\n${spec}${sep("best-practices.md")}${bestPractices}${sep("examples.md")}${examples}${sep("skill/SKILL.md")}${skill}`);
+
+console.log(`built ${pages.length} pages, icons, markdown mirrors and llms.txt → ${out} (style.css?v=${cssHash})`);

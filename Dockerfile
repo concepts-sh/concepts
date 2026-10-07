@@ -2,6 +2,7 @@
 FROM oven/bun:1-alpine AS build
 WORKDIR /src
 COPY SPEC.md ./
+COPY skills ./skills
 COPY site ./site
 RUN bun site/build.mjs
 
