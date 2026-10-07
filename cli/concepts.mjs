@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // concepts — init, check, wiki. One file, no dependencies. Runs under Node 18+ or Bun.
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync, symlinkSync } from "node:fs";
 import { join, dirname, basename, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const OPENERS = [
   "kind of", "kinds", "part of", "parts", "same as", "replaces", "replaced by",
@@ -232,12 +233,24 @@ function init(root) {
     const t = readFileSync(claude, "utf8");
     if (!t.includes("@.concepts/index.md")) { writeFileSync(claude, t.replace(/\s*$/, "\n") + "\n@.concepts/index.md\n"); made.push("CLAUDE.md (import added)"); }
   }
-  // The skill: copied from the package when it is installed beside this file, otherwise pointed at.
-  const skillSrc = join(dirname(new URL(import.meta.url).pathname), "..", "skills", "concepts");
+  // The skill ships inside this package. It is copied once into .agents/skills/, the folder
+  // Codex, Amp and others read, and linked into the folders Claude Code and Cursor read.
+  const skillSrc = join(dirname(fileURLToPath(import.meta.url)), "..", "skills", "concepts");
   const skillDst = join(root, ".agents", "skills", "concepts");
   if (existsSync(skillSrc) && !existsSync(skillDst)) {
     copyDir(skillSrc, skillDst);
     made.push(".agents/skills/concepts/");
+  }
+  if (existsSync(skillDst)) {
+    for (const agentDir of [".claude", ".cursor"]) {
+      const linkDir = join(root, agentDir, "skills");
+      const link = join(linkDir, "concepts");
+      if (existsSync(link)) continue;
+      mkdirSync(linkDir, { recursive: true });
+      try { symlinkSync(relative(linkDir, skillDst), link, "dir"); }
+      catch { copyDir(skillDst, link); } // no symlinks here (some Windows setups): a copy works too
+      made.push(`${agentDir}/skills/concepts`);
+    }
   }
   return made;
 }

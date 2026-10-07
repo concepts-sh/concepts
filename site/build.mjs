@@ -184,7 +184,7 @@ A concept is one markdown file with two required fields, \`title\` and \`descrip
 
 ## For agents
 
-- [The concepts skill](https://concepts.sh/skill/SKILL.md): how an agent reads, writes and maintains a base. Install with \`npx concepts init\` or \`npx skills add concepts-sh/concepts\`.
+- [The concepts skill](https://concepts.sh/skill/SKILL.md): how an agent reads, writes and maintains a base. Install with \`npx concepts-sh init\` or \`npx skills add concepts-sh/concepts\`.
 - [Format reference](https://concepts.sh/skill/references/format.md): the spec condensed for the skill.
 - [Relationship types](https://concepts.sh/skill/references/types.md): the eight types with example sentences.
 - [Style](https://concepts.sh/skill/references/style.md): the writing rules.

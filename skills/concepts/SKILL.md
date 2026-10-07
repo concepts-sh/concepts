@@ -67,7 +67,7 @@ When a change alters what a concept means (a schema, a type, an API, a rule), ch
 
 ## 7. Check
 
-Run `npx concepts check` when available. Otherwise verify by reading:
+Run `npx concepts-sh check` when available. Otherwise verify by reading:
 
 1. Every link to a file in the base resolves.
 2. Every concept has a title and a one-sentence description.
@@ -78,7 +78,7 @@ Run `npx concepts check` when available. Otherwise verify by reading:
 
 ## 8. Show
 
-When asked to show, visualize or explain the concepts: run `npx concepts wiki` when available and open the result. Otherwise, summarize the map by folder and offer to open specific concepts.
+When asked to show, visualize or explain the concepts: run `npx concepts-sh wiki` when available and open the result. Otherwise, summarize the map by folder and offer to open specific concepts.
 
 ## Rules that always apply
 

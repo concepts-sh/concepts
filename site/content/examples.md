@@ -141,4 +141,4 @@ What changes: the agent stops reaching for the API it learned, because the conce
 
 ## The standard's own base
 
-The repository that defines Concepts keeps its own base in `.concepts/`: sixteen concepts, each with a source line pointing at the spec section it comes from. `npx concepts wiki` on a checkout renders it.
+The repository that defines Concepts keeps its own base in `.concepts/`: sixteen concepts, each with a source line pointing at the spec section it comes from. `npx concepts-sh wiki` on a checkout renders it.

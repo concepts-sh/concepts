@@ -1,0 +1,30 @@
+{
+  "name": "concepts-sh",
+  "version": "0.1.0",
+  "description": "Concepts, an open format for agent knowledge: init, check and wiki for a .concepts/ folder.",
+  "license": "MIT",
+  "homepage": "https://concepts.sh",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/concepts-sh/concepts.git"
+  },
+  "bin": {
+    "concepts": "cli/concepts.mjs"
+  },
+  "files": [
+    "cli",
+    "skills",
+    "SPEC.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "agents",
+    "concepts",
+    "knowledge",
+    "AGENTS.md",
+    "skills",
+    "markdown"
+  ]
+}

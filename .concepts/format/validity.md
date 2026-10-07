@@ -4,7 +4,7 @@ description: The six checks a base passes before a change to it is complete.
 ---
 Every [link](link.md) to a file in the base resolves. Every [concept](concept.md) has a title and a one-sentence [description](description.md). Every concept has one line in its [map](map.md), and the line matches the file. Every [connection](connection.md) has an opener and a link. Kind and Part form no loop, and no pair is both Not and Same as. Titles are unique within the base. An agent checks all six by reading; a script checks them with no dependencies.
 
-Example: `npx concepts check`.
+Example: `npx concepts-sh check`.
 Source: `SPEC.md`, section 8.
 
 ## Connections

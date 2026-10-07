@@ -3,7 +3,7 @@
     <p class="eyebrow">An open format for agent knowledge</p>
     <h1>Agents need skills. They also need concepts.</h1>
     <p class="lead">A skill tells an agent how to do a task. A concept tells it what a thing means in your project, and how it connects to other things. A <code>.concepts/</code> folder of plain markdown holds them.</p>
-    <div class="install"><code id="cmd">npx concepts init</code><button class="copy" type="button" id="copy">Copy</button></div>
+    <div class="install"><code id="cmd">npx concepts-sh init</code><button class="copy" type="button" id="copy">Copy</button></div>
     <script>
     document.getElementById("copy").addEventListener("click", function () {
       var b = this, text = document.getElementById("cmd").textContent;
@@ -114,7 +114,7 @@ Source: `src/billing/invoice.ts`.
     </div>
     <div>
       <h3>Checkable</h3>
-      <p>Six validity rules: links resolve, every concept has a definition, the map matches the files. Run by the agent, or by <code>npx concepts check</code> in CI.</p>
+      <p>Six validity rules: links resolve, every concept has a definition, the map matches the files. Run by the agent, or by <code>npx concepts-sh check</code> in CI.</p>
     </div>
     <div>
       <h3>Shareable</h3>
@@ -139,9 +139,9 @@ Source: `src/billing/invoice.ts`.
 <section>
   <h2>Get started</h2>
   <ol class="steps">
-    <li><strong>Install.</strong> <code>npx concepts init</code> makes the folder, installs the skill, and adds one line to <code>AGENTS.md</code>. Or do those three things by hand.</li>
+    <li><strong>Install.</strong> <code>npx concepts-sh init</code> makes the folder, installs the skill, and adds one line to <code>AGENTS.md</code>. Or do those three things by hand.</li>
     <li><strong>Ask your agent: set up concepts.</strong> It reads your schema, types and docs, writes the ten to twenty concepts that matter, and asks you about the rest.</li>
-    <li><strong>Correct it.</strong> When a term is wrong, say so. The agent fixes the file. <code>npx concepts check</code> runs in CI, and <code>npx concepts wiki</code> shows the base in a browser.</li>
+    <li><strong>Correct it.</strong> When a term is wrong, say so. The agent fixes the file. <code>npx concepts-sh check</code> runs in CI, and <code>npx concepts-sh wiki</code> shows the base in a browser.</li>
   </ol>
 </section>
 
