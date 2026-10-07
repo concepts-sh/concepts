@@ -78,3 +78,5 @@ export function writeIcons(dir) {
   writeFileSync(join(dir, "apple-touch-icon.png"), png(180));
   writeFileSync(join(dir, "icon-512.png"), png(512));
 }
+
+export function pngBuffer(size) { return png(size); }
