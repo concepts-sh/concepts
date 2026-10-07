@@ -1,63 +1,118 @@
-# concepts
+# Concepts
 
-A `.concepts/` folder gives your agents the meaning of things: what each term, entity, metric and idea in your project is, and how they connect. Skills tell an agent how to do a task. Concepts tell it what things are.
+**An open format for agent knowledge.** Agents need skills. They also need concepts.
+
+A skill tells an agent how to do a task. A concept tells it what a thing means in your project, and how it connects to other things. A `.concepts/` folder of plain markdown holds them. No tool, no server, no database; any agent that reads `AGENTS.md` can use it today.
 
 > Intelligence means having a sufficient number of clear, correct and essential concepts in your mind, and having established a sufficient number of clear, correct and essential connections among them.
 
-The format is plain markdown with no dependencies. It is defined in [SPEC.md](SPEC.md). This file describes the tooling, which is optional: every file the tooling writes, a person can write by hand.
+[concepts.sh](https://concepts.sh) · [Specification](https://concepts.sh/spec) · [Best practices](https://concepts.sh/best-practices) · [Use cases](https://concepts.sh/use-cases) · [Live base](https://concepts.sh/wiki) · [llms.txt](https://concepts.sh/llms.txt)
 
-Status: draft. The package is `concepts-sh` on npm (the command it installs is `concepts`); from a checkout, `bun cli/concepts.mjs <command>` does the same.
+Status: version 0.1, draft. The format is stable enough to use; expect wording changes.
 
-## Install
+## One concept, one file
+
+`.concepts/billing/invoice.md`:
+
+```markdown
+---
+title: Invoice
+description: A bill for one billing period that cannot change after it is finalized.
+---
+An invoice lists what a [workspace](../tenancy/workspace.md) owes for one billing period. Finalizing it freezes the amounts.
+
+Example: `src/billing/__fixtures__/invoice.json`.
+Source: `src/billing/invoice.ts`.
+
+## Connections
+- Part of a [workspace](../tenancy/workspace.md), never of a user.
+- Requires a [proration](proration.md) for any change after it is finalized.
+- Causes a [payment attempt](payment-attempt.md) when it is finalized.
+- Not a [receipt](receipt.md): a receipt records a payment, an invoice requests one.
+```
+
+`.concepts/index.md`, the map:
+
+```markdown
+# Concepts
+
+## billing
+- [Invoice](billing/invoice.md): A bill for one billing period that cannot change after it is finalized. Part of workspace; requires proration; causes payment attempt; not receipt.
+```
+
+Two fields are required: a title and a one-sentence definition. A connection is a sentence whose first word is the type. The map lists every concept on one line, and the agent sees it on every turn; it opens a concept file when a task touches the concept.
+
+## Before and after
+
+| Request | Without concepts | With concepts |
+|---|---|---|
+| "Let users edit last month's invoice." | Adds an edit endpoint to the invoice. | Reads Invoice: "cannot change after it is finalized, requires a proration". Builds a proration. |
+| "Churn by cohort." | Invents a query over raw events and mixes up user churn with revenue churn. | Uses `fct_churn` and the 28-day active-user definition from the Churn concept. |
+| "Add caching to the dashboard page." | Calls `unstable_cache`, the API it learned in training. | Sees "Replaces the old cache helper" on the map and uses cache components. |
+
+Six situations with the files: [use cases](https://concepts.sh/use-cases).
+
+## Get started
 
 ```
 npx concepts-sh init
 ```
 
-`bunx concepts-sh init` is the same. It does three things, all plain files:
+`bunx concepts-sh init` is the same. It creates `.concepts/index.md`, installs the `concepts` skill into `.agents/skills/` with links from `.claude/skills/` and `.cursor/skills/`, and adds one block to `AGENTS.md`. All of it is plain files you could create by hand.
 
-1. Creates `.concepts/index.md`, the map.
-2. Installs the `concepts` skill into `.agents/skills/` and links it into each agent's own skills folder.
-3. Adds a short block to `AGENTS.md` (and `@.concepts/index.md` to `CLAUDE.md` if present) so every agent reads the map before domain work.
+1. **Ask your agent: set up concepts.** It reads your schema, types and docs, writes the ten to twenty concepts that matter, and asks about the terms it cannot pin down.
+2. **Correct it.** When a term is wrong, say so. The agent fixes the concept file and the map line in the same change, and every teammate's agent has the fix from then on.
+3. **Keep it honest.** `npx concepts-sh check` runs the six validity rules, for CI. `npx concepts-sh wiki` builds a disposable wiki to read the base in a browser.
 
-Then ask your agent: *set up concepts*. An existing project does not start from scratch; the agent mines what the repo already says:
+## Eight relationship types
 
-1. Schema and models: tables, domain types, enums, with the code as each concept's source.
-2. Contracts: API schemas, event and queue names.
-3. Existing glossaries: `CONTEXT.md`, docs glossaries, ADRs.
-4. Names used across many files, names that mean two things, names defined nowhere.
-5. Past corrections in reviews and chats, where someone said "that's not what X means".
+The first word of a connection is its type. The rest of the sentence is the claim.
 
-It writes the ten to twenty that matter most, with their connections, asks about the terms it cannot pin down, and opens a PR. Small on purpose: the base grows from corrections.
+| Type | Opener | Question it answers |
+|---|---|---|
+| Kind | Kind of X · Kinds: X, Y | What is it, more generally? |
+| Part | Part of X · Parts: X, Y | What contains it? |
+| Same | Same as X | Is it the same thing under another name? |
+| Replaces | Replaces X · Replaced by X | What is outdated, and what replaced it? |
+| Not | Not X | What is it confused with? |
+| Requires | Requires X · Required by X | What must be true first? |
+| Causes | Causes X · Caused by X | What does it trigger? |
+| Use | Used for X · Uses X | What is it for? |
 
-The skill also installs through plugin marketplaces and `npx skills add`. Installed that way, it creates the folder and the AGENTS.md block itself on first use.
+When a relationship needs its own definition, it is a concept: Settlement is the relationship between a payment and an invoice, so Settlement gets a file.
 
-## Use
+## Why concepts
 
-- **Daily work needs nothing.** The map is in context on every turn. The agent opens a concept file when a task touches it and follows the connections.
-- **Correct once.** When the agent misunderstands a term, say so. The skill fixes the concept file and the map line in the same change, and every teammate's agent has it from then on.
-- **Meaning changes with code.** When a change alters what a concept means, the concept changes in the same commit.
-- **Read the base.** `npx concepts-sh wiki` builds a wiki into the temp directory and opens it: a page per concept, connections as sentences, backlinks, a reading order from prerequisites, and a health view. External concepts you link to appear at the edge of the graph as ghost nodes; `--external` fetches the bases listed under `## External` and shows them too. It is disposable; rebuild it any time. Edits go through the agent or your editor, not the page.
-- **Check in CI.** `npx concepts-sh check` runs the six validity rules from the spec.
+- **Shared understanding.** People and agents use the same defined words.
+- **Evolves with the project.** Grows from corrections; changes in the same commit as the code.
+- **Progressive disclosure.** The map is always in mind; files load only when a task touches them.
+- **Typed connections.** Eight relationship types give the agent the shape of your domain, not a glossary.
+- **Sources, not copies.** Every concept points to the file or document that defines it.
+- **Reviewable like code.** Plain markdown in git; a change of meaning shows up in the pull request.
+- **Checkable.** Six validity rules, run by the agent or in CI.
+- **Shareable.** Push the repo and every concept has a URL. Others link to your concepts, pinned to a version, and write their own with yours as the source. Nothing is copied.
+- **No lock-in.** Works in any agent that reads `AGENTS.md`; the files open in Obsidian or any markdown viewer.
 
-## Share
+## This repository
 
-A base is shared by publishing it. Push the repository, and every concept in it has a URL.
+| Path | What it is |
+|---|---|
+| [`SPEC.md`](SPEC.md) | The format, on one page. The site's spec page is rendered from it. |
+| [`skills/concepts/`](skills/concepts/) | The skill that teaches an agent to read, write and maintain a base. Installable with `npx skills add concepts-sh/concepts`. |
+| [`cli/concepts.mjs`](cli/concepts.mjs) | `init`, `check`, `wiki`. One file, no dependencies, runs under Bun or Node. Published as `concepts-sh`. |
+| [`.concepts/`](.concepts/) | This repository's own base: the standard described in its own format. Rendered at [concepts.sh/wiki](https://concepts.sh/wiki). |
+| [`site/`](site/) | The site. `bun site/build.mjs` writes it to `site/dist/`. |
 
-Using someone else's base never copies it:
+From a checkout: `bun cli/concepts.mjs check` validates the base, `bun cli/concepts.mjs wiki` opens it, `bun site/build.mjs` builds the site.
 
-- **Link to it.** A sentence may link to a concept in another base by URL, pinned to a version. Add the base to the `## External` section of your map, one line, so your agent knows it exists and reads it when a task needs it.
-- **Write your own.** When an external concept must be in mind on every turn, write a local concept in your own words, with the external concept as its source.
+## Contributing
 
-To read a whole base, clone it and run `npx concepts-sh wiki path/to/.concepts`, or publish its wiki with GitHub Pages. Your own base holds only your concepts, so titles never collide and nothing needs resolving. The directory of public bases will live at concepts.sh, with a readable wiki for each.
+Issues and pull requests are welcome. Three things keep the repository consistent:
+
+- `SPEC.md` is the source of truth. A change to the format starts there; the skill's references and the site follow it.
+- `.concepts/` must pass `bun cli/concepts.mjs check`. CI runs it on every pull request.
+- The spec is written in its own style: short sentences, active voice, must and must not.
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-## Files in this repository
-
-- `SPEC.md`: the format.
-- `skills/concepts/`: the skill, which teaches an agent to read, write and maintain a base.
-- `cli/`: the `concepts` command.
-- `site/`: the site at concepts.sh. `bun site/build.mjs` writes it to `site/dist/`: home, spec (rendered from `SPEC.md`), best practices, use cases, and the repository's own base as a wiki.
