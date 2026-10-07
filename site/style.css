@@ -5,7 +5,7 @@
   --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
   --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --measure: 66ch;
+  --measure: 72ch;
 }
 @media (prefers-color-scheme: dark) {
   :root { --paper: #141416; --paper-2: #1c1c1f; --ink: #ece9e2; --ink-2: #c9c5bb; --muted: #8f8b82; --rule: #2d2d31; --rule-2: #3b3b40;
@@ -23,6 +23,7 @@ pre code { background: none; padding: 0; font-size: 13.5px; color: var(--ink-2);
 h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.1; letter-spacing: -0.012em; margin: 0; }
 h1 { font-size: 46px; margin-bottom: 14px; }
 h2 { font-size: 30px; margin: 0 0 18px; }
+h2 em { font-size: 1em; }
 h3 { font-size: 22px; margin: 28px 0 8px; }
 p { margin: 0 0 16px; max-width: var(--measure); }
 em { font-family: var(--serif); font-style: italic; font-size: 1.05em; }
@@ -130,7 +131,8 @@ figcaption { font-family: var(--mono); font-size: 11.5px; color: var(--muted); l
 .steps li strong { display: block; color: var(--ink); font-family: var(--serif); font-size: 20px; font-weight: 500; margin-bottom: 6px; }
 .types td:first-child { font-family: var(--serif); font-size: 17px; white-space: nowrap; }
 .types td:nth-child(2) { font-family: var(--mono); font-size: 13.5px; color: var(--ink-2); }
-.works { font-family: var(--mono); font-size: 13.5px; color: var(--ink-2); line-height: 2; margin: 0 0 8px; max-width: none; }
+.works { display: flex; flex-wrap: wrap; font-family: var(--mono); font-size: 13.5px; color: var(--ink-2); line-height: 2; margin: 0 0 8px; max-width: none; }
+.works span { white-space: nowrap; }
 .works span::after { content: "  ·  "; color: var(--rule-2); white-space: pre; }
 .works span:last-child::after { content: ""; }
 dl.faq { margin: 0; max-width: var(--measure); }
