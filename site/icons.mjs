@@ -29,7 +29,7 @@ function insideMark(x, y) {
   return false;
 }
 
-function raster(size) {
+function raster(size, markOnly) {
   const px = new Uint8Array(size * size * 4);
   const ss = 4; // supersampling per axis
   for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
@@ -40,6 +40,7 @@ function raster(size) {
     }
     const n = ss * ss, a = tile / n, m = tile ? mark / tile : 0;
     const o = (y * size + x) * 4;
+    if (markOnly) { px[o] = BLUE[0]; px[o + 1] = BLUE[1]; px[o + 2] = BLUE[2]; px[o + 3] = Math.round(255 * (mark / n)); continue; }
     px[o] = Math.round(BLUE[0] + (255 - BLUE[0]) * m);
     px[o + 1] = Math.round(BLUE[1] + (255 - BLUE[1]) * m);
     px[o + 2] = Math.round(BLUE[2] + (255 - BLUE[2]) * m);
@@ -56,8 +57,8 @@ function chunk(type, data) {
   const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(td));
   return Buffer.concat([len, td, crc]);
 }
-function png(size) {
-  const px = raster(size);
+function png(size, markOnly) {
+  const px = raster(size, markOnly);
   const rows = Buffer.alloc(size * (size * 4 + 1));
   for (let y = 0; y < size; y++) { rows[y * (size * 4 + 1)] = 0; Buffer.from(px.buffer, y * size * 4, size * 4).copy(rows, y * (size * 4 + 1) + 1); }
   const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(size, 0); ihdr.writeUInt32BE(size, 4); ihdr[8] = 8; ihdr[9] = 6; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0;
@@ -79,4 +80,4 @@ export function writeIcons(dir) {
   writeFileSync(join(dir, "icon-512.png"), png(512));
 }
 
-export function pngBuffer(size) { return png(size); }
+export function pngBuffer(size, markOnly) { return png(size, markOnly); }
