@@ -8,7 +8,7 @@ A skill tells an agent how to do a task. A concept tells it what a thing means i
 
 [concepts.sh](https://concepts.sh) · [Specification](https://concepts.sh/spec) · [Best practices](https://concepts.sh/best-practices) · [Use cases](https://concepts.sh/use-cases) · [Live base](https://concepts.sh/wiki) · [llms.txt](https://concepts.sh/llms.txt)
 
-Status: version 0.1, draft. The format is stable enough to use; expect wording changes.
+Version 0.1.
 
 ## One concept, one file
 

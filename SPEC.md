@@ -1,6 +1,6 @@
 # Concepts
 
-Specification, version 0.1 (draft).
+Specification, version 0.1.
 
 > Intelligence means having a sufficient number of clear, correct and essential concepts in your mind, and having established a sufficient number of clear, correct and essential connections among them.
 

@@ -3,18 +3,8 @@
     <p class="eyebrow">An open format for agent knowledge</p>
     <h1>Agents need skills.<br>They also need <span class="u"><em>concepts.</em><svg class="stroke" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9.5 C 30 4, 58 12.5, 88 8 S 140 3.5, 168 8.5 S 190 11, 197 7"/></svg></span></h1>
     <p class="lead">A skill tells an agent how to do a task. A concept tells it what a thing means in your project, and how it connects to other things. A <code>.concepts/</code> folder of plain markdown holds them.</p>
-    <div class="install"><code id="cmd">npx concepts-sh init</code><button class="copy" type="button" id="copy">Copy</button></div>
-    <script>
-    document.getElementById("copy").addEventListener("click", function () {
-      var b = this, text = document.getElementById("cmd").textContent;
-      function done() { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 2000); }
-      function fallback() {
-        var t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
-        document.body.appendChild(t); t.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(t); done();
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
-    });
-    </script>
+    <div class="install"><code>npx concepts-sh init</code><button class="copy" type="button">Copy</button></div>
+
   </div>
   <div>
     <svg class="graph" viewBox="0 0 440 300" role="img" aria-label="The concept Invoice with its typed connections: part of Workspace, requires Proration, causes Payment attempt, not Receipt">
@@ -44,14 +34,8 @@
     </svg>
     <p class="caption">Fig. 1 — One concept and its connections.</p>
   </div>
-  <a class="cue" href="#idea"><span>&darr;</span>The idea behind it</a>
 </section>
 
-<section class="interlude" id="idea">
-  <blockquote class="thesis"><p>Intelligence means having a sufficient number of clear, correct and essential <em>concepts</em> in your mind, and having established a sufficient number of clear, correct and essential connections among them.</p></blockquote>
-  <p class="thesis-who">The idea behind the format</p>
-  <a class="cue" href="#before-and-after"><span>&darr;</span>Before and after</a>
-</section>
 
 <section id="before-and-after">
   <h2>Before and after</h2>
@@ -175,3 +159,27 @@ Source: `src/billing/invoice.ts`.
     <dd>No. The format needs no tool. The CLI installs the skill, checks a base in CI, and builds the wiki.</dd>
   </dl>
 </section>
+
+<section class="interlude" id="idea">
+  <blockquote class="thesis"><p>Intelligence means having a sufficient number of clear, correct and essential <em>concepts</em> in your mind, and having established a sufficient number of clear, correct and essential connections among them.</p></blockquote>
+  <p class="thesis-who">The idea behind the format</p>
+</section>
+
+<section class="try">
+  <h2>Try it now</h2>
+  <p>One command creates the folder, installs the skill, and adds one line to <code>AGENTS.md</code>. Then ask your agent to set up concepts.</p>
+  <div class="install"><code>npx concepts-sh init</code><button class="copy" type="button">Copy</button></div>
+</section>
+    <script>
+    document.querySelectorAll(".copy").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var text = b.previousElementSibling.textContent;
+        function done() { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 2000); }
+        function fallback() {
+          var t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+          document.body.appendChild(t); t.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(t); done();
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+      });
+    });
+    </script>
