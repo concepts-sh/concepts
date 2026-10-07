@@ -90,7 +90,7 @@ Source: `src/billing/invoice.ts`.
   <dl class="entries">
     <div><dt>Shared understanding</dt><dd>People and agents use the same defined words. The agent stops guessing what your words mean, and conversations get shorter.</dd></div>
     <div><dt>Evolves with the project</dt><dd>Grows from corrections, and changes in the same commit as the code. Never a stale wiki.</dd></div>
-    <div><dt>Progressive disclosure</dt><dd>The map is always in mind, about 4,000 tokens for a hundred concepts. Files load only when a task touches them.</dd></div>
+    <div><dt>Progressive disclosure</dt><dd>The map is always in mind. Files load only when a task touches them.</dd></div>
     <div><dt>Typed connections</dt><dd>Eight relationship types give the agent the shape of your domain, not a glossary. "Part of a workspace, never of a user" is what stops the wrong change.</dd></div>
     <div><dt>Sources, not copies</dt><dd>Every concept points to the file or document that defines it, so it stays correct and stale ones are easy to find.</dd></div>
     <div><dt>Reviewable like code</dt><dd>Plain markdown in git. A change of meaning shows up in the pull request, next to the code that caused it.</dd></div>
@@ -103,7 +103,7 @@ Source: `src/billing/invoice.ts`.
 <section>
   <h2>How it works</h2>
   <ol class="steps">
-    <li><strong>The map is always in context.</strong> One line in <code>AGENTS.md</code> points to <code>.concepts/index.md</code>. A hundred concepts fit in about 4,000 tokens.</li>
+    <li><strong>The map is always in context.</strong> One line in <code>AGENTS.md</code> points to <code>.concepts/index.md</code>.</li>
     <li><strong>Files load when needed.</strong> When a task touches a concept, the agent opens its file and follows the connections.</li>
     <li><strong>The agent keeps it current.</strong> A skill tells it when to add, fix and retire concepts, in the same change as the code. You review the diff.</li>
   </ol>

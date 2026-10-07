@@ -126,7 +126,7 @@ Rules 1 to 6 apply strictly to the title, the description and the connections. T
 ```
 
 - A line holds the link, the description, and the typed connections in lowercase, separated by semicolons.
-- The map must stay under about 4,000 tokens, which is about one hundred concepts. Beyond that, the root map lists each folder with one line, and each folder has its own `index.md` in the same format.
+- The map stays short. When a folder has its own `index.md`, the root map lists that folder with one line, and the folder's map lists its concepts in the same format.
 - The map may end with a section `## External` that lists other bases, one line each: a link to the base's `index.md`, pinned to a version, and a description.
 - Whoever adds or changes a concept updates the map in the same change.
 

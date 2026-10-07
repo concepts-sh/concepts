@@ -58,7 +58,7 @@ Connections:
 ```
 
 - A line holds the link, the description, and the typed connections in lowercase, separated by semicolons.
-- The map stays under about 4,000 tokens, about one hundred concepts. Beyond that, the root map lists folders, and each folder has its own `index.md`.
+- The map stays short. When a folder has its own `index.md`, the root map lists that folder with one line.
 - The map may end with `## External`: other bases, one line each, a link to their `index.md` pinned to a version, and a description.
 - Whoever adds or changes a concept updates the map in the same change.
 
