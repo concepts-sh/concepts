@@ -1,6 +1,6 @@
 {
   "name": "concepts-sh",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Concepts, an open format for agent knowledge: init, check and wiki for a .concepts/ folder.",
   "license": "MIT",
   "homepage": "https://concepts.sh",
