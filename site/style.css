@@ -85,7 +85,7 @@ footer .muted { max-width: 34ch; }
 main > section:not(.hero) { position: relative; padding: 56px 0 8px 96px; counter-increment: sec; border-top: 1px solid var(--rule); margin-top: 24px; }
 main > section:not(.hero) > h2::before { content: counter(sec, decimal-leading-zero); position: absolute; left: 0; top: 60px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--muted); }
 .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 64px; align-items: end; padding: 28px 0 44px; }
-.eyebrow { font-family: var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11.5px; margin-bottom: 22px; }
+.eyebrow { font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11.5px; margin-bottom: 22px; }
 .hero h1 { font-size: 60px; line-height: 1.02; margin-bottom: 22px; letter-spacing: -0.02em; }
 .hero h1 em { font-size: 1em; color: var(--ink); }
 .lead { font-size: 19px; line-height: 1.5; color: var(--ink-2); max-width: 30em; }
