@@ -51,6 +51,10 @@ Using someone else's base never copies it:
 
 To read a whole base, clone it and run `npx concepts wiki path/to/.concepts`, or publish its wiki with GitHub Pages. Your own base holds only your concepts, so titles never collide and nothing needs resolving. The directory of public bases will live at concepts.sh, with a readable wiki for each.
 
+## License
+
+MIT. See [LICENSE](LICENSE).
+
 ## Files in this repository
 
 - `SPEC.md`: the format.

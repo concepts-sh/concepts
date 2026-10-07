@@ -127,8 +127,8 @@ const cssHash = createHash("sha256").update(css).digest("hex").slice(0, 10);
 // The icons are versioned the same way, from the generator's source, so a colour change is a new URL.
 const iconHash = createHash("sha256").update(readFileSync(join(here, "icons.mjs"))).digest("hex").slice(0, 10);
 const layout = readFileSync(join(here, "layout.html"), "utf8")
-  .replace('href="style.css"', `href="style.css?v=${cssHash}"`)
-  .replace(/href="(favicon\.ico|favicon\.svg|apple-touch-icon\.png)"/g, (m, f) => `href="${f}?v=${iconHash}"`)
+  .replace('href="/style.css"', `href="/style.css?v=${cssHash}"`)
+  .replace(/href="\/(favicon\.ico|favicon\.svg|apple-touch-icon\.png)"/g, (m, f) => `href="/${f}?v=${iconHash}"`)
   .replace('content="https://concepts.sh/icon-512.png"', `content="https://concepts.sh/icon-512.png?v=${iconHash}"`);
 const pages = [
   { file: "index.html", title: "Concepts", nav: "home", source: join(here, "content", "index.html"), raw: true },
